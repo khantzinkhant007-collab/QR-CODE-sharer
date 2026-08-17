@@ -30,6 +30,20 @@ npm run build
 
 Point the PHP web root at `backend/public` only. Serve `frontend/dist` as static assets with SPA fallback to `index.html`, excluding `/api/*` and `/d/*` from that fallback.
 
+## Railway backend
+
+Railway can deploy the Laravel application from this monorepo with Railpack:
+
+1. Create a service from the GitHub repository and set its root directory to `/backend`.
+2. Set the config-as-code path to `/backend/railway.json`.
+3. Add a MySQL service and a private Storage Bucket in the same Railway project.
+4. Map the MySQL and bucket credentials to Laravel's `DB_*` and `AWS_*` variables.
+5. Generate a public Railway domain for the Laravel service.
+6. Set `APP_URL` and `PUBLIC_DOWNLOAD_BASE_URL` to that domain and `FRONTEND_URL=https://qr-code-sharer.vercel.app`.
+7. Set Vercel's `VITE_API_BASE_URL` to the same Railway domain and redeploy the frontend.
+
+`backend/php.ini` raises PHP's application-server limits to the documented 2 GiB maximum. Railway currently limits a single HTTP request to 15 minutes, so reliable 2 GiB support still requires direct multipart browser-to-bucket uploads for slow connections.
+
 ## Laravel environment
 
 Set production values through the platform secret manager:
@@ -47,7 +61,7 @@ DB_PORT=3306
 DB_DATABASE=scansend
 DB_USERNAME=<least-privilege-user>
 DB_PASSWORD=<secret>
-UPLOAD_MAX_MB=100
+UPLOAD_MAX_MB=2048
 SCAN_STORAGE_DISK=s3
 FILESYSTEM_DISK=s3
 ```
@@ -79,7 +93,7 @@ Run `php artisan schedule:run` every minute through cron or the platform schedul
 
 ## Web/PHP limits
 
-Set PHP `upload_max_filesize=100M` and `post_max_size` slightly higher. Set Nginx `client_max_body_size 105m` or the equivalent proxy/CDN/load-balancer limit. Align idle/request timeouts with expected mobile 100 MB upload duration without making denial-of-service limits unbounded.
+Set PHP `upload_max_filesize=2048M` and `post_max_size=2100M` or higher. Set Nginx `client_max_body_size 2100m` or the equivalent proxy/CDN/load-balancer limit. Align idle/request timeouts with the slowest supported 2 GiB upload without making denial-of-service limits unbounded. Confirm every upstream platform supports this request size; otherwise use direct multipart browser-to-private-object-storage uploads so the file bytes do not pass through the application server.
 
 ## Release sequence
 
@@ -95,4 +109,3 @@ Set PHP `upload_max_filesize=100M` and `post_max_size` slightly higher. Set Ngin
 ## Rollback
 
 Application rollback must preserve migration compatibility. Do not restore expired file objects from a broad backup without reapplying retention rules. A frontend rollback may leave a newer service worker cached; deploy a new version that explicitly supersedes it rather than deleting users' browser data.
-

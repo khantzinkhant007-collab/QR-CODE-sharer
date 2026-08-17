@@ -7,8 +7,8 @@ $allowedMimeTypes = array_values(array_filter(array_map(
 
 return [
     'storage_disk' => env('SCAN_STORAGE_DISK', env('FILESYSTEM_DISK', 'local')),
-    'max_upload_mb' => (int) env('UPLOAD_MAX_MB', 100),
-    'max_upload_kb' => (int) env('UPLOAD_MAX_MB', 100) * 1024,
+    'max_upload_mb' => (int) env('UPLOAD_MAX_MB', 2048),
+    'max_upload_kb' => (int) env('UPLOAD_MAX_MB', 2048) * 1024,
     'allowed_mime_types' => $allowedMimeTypes,
     'extension_by_mime' => [
         'image/jpeg' => 'jpg',

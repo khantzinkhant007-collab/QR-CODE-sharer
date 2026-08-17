@@ -12,7 +12,7 @@ import { formatBytes, validateSelectedFile } from '../lib/files'
 import { effectiveUploadStatus, listUploads, saveUpload } from '../lib/history'
 import type { UploadProgress } from '../types'
 
-const MAX_MB = Number(import.meta.env.VITE_UPLOAD_MAX_MB ?? 100) || 100
+const MAX_MB = Number(import.meta.env.VITE_UPLOAD_MAX_MB ?? 2048) || 2048
 const MAX_BYTES = MAX_MB * 1024 * 1024
 const expirations = [
   { value: 10, en: '10 min', ja: '10分' },

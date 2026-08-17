@@ -10,7 +10,7 @@ All API responses use `Cache-Control: no-store`. Production requests must use HT
 
 | Field | Required | Value |
 |---|---:|---|
-| `file` | yes | One allowed image/video binary, default maximum 100 MB |
+| `file` | yes | One allowed image/video binary, default maximum 2 GiB |
 | `expires_in_minutes` | yes | `10`, `60`, `1440`, or `10080` |
 | `max_downloads` | no | omit/null for unlimited-until-expiration, or `1` |
 
@@ -58,4 +58,3 @@ It returns status, expiration, current/max downloads, metadata, and `file_exists
   }
 }
 ```
-

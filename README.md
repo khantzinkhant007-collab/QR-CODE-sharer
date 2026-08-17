@@ -8,7 +8,7 @@ The receiving person needs only a normal phone camera and browser—no ScanSend 
 
 - React 19, TypeScript, Vite 8, Tailwind CSS 4, React Router, TanStack Query, Axios, Dexie IndexedDB, `qrcode`, and `vite-plugin-pwa`.
 - Live rear-camera preview with capture/retake/confirm and `<input capture="environment">` fallback.
-- Image/video selection, object-URL preview, 100 MB client/server default limit, four expiration choices, and one-download mode.
+- Image/video selection, object-URL preview, 2 GiB client/server application limit, four expiration choices, and one-download mode.
 - True Axios upload progress, byte counts, speed, ETA, abort, retry, offline state, and navigation protection.
 - Local high-resolution QR generation, copy/share/save actions, live expiration countdown, status polling, and sender deletion.
 - English and Japanese interface, dark mode, responsive navigation, keyboard focus, touch targets, and ARIA live feedback.
@@ -149,7 +149,7 @@ Important backend settings:
 | `APP_URL` | Laravel origin | `http://localhost:8000` |
 | `FRONTEND_URL` | sole allowed browser CORS origin | `http://localhost:5173` |
 | `PUBLIC_DOWNLOAD_BASE_URL` | base encoded into new QR links | `http://localhost:8000` |
-| `UPLOAD_MAX_MB` | Laravel validation limit | `100` |
+| `UPLOAD_MAX_MB` | Laravel validation limit | `2048` |
 | `DEFAULT_EXPIRATION_MINUTES` | documented/default lifetime | `1440` |
 | `FILESYSTEM_DISK` / `SCAN_STORAGE_DISK` | private `local` or `s3` disk | `local` |
 | `UPLOAD_RATE_LIMIT_PER_MINUTE` | per-IP upload throttle | `10` |
@@ -200,7 +200,7 @@ VITE_API_BASE_URL=https://api.scansend.example
 
 Deploy the backend first, then the frontend. Confirm that `https://api.scansend.example/up` responds successfully and create a new upload. New QR codes will contain `https://api.scansend.example/d/{token}`. QR codes created earlier still contain `localhost` and must be regenerated.
 
-The current application accepts files up to 100 MB and sends them through Laravel. Vercel Functions have a much smaller request-body limit and an ephemeral filesystem, so the existing Laravel upload/download implementation should not be placed in a Vercel Function without first redesigning it for direct client-to-object-storage uploads.
+The current application advertises files up to 2 GiB and sends them through Laravel. Vercel Functions have a much smaller request-body limit and an ephemeral filesystem, so the existing Laravel upload/download implementation must not be placed in a Vercel Function. For reliable public 2 GiB transfers, use direct multipart browser-to-object-storage uploads or a Laravel host whose proxy, PHP runtime, timeouts, and storage all support the full request.
 
 ## PWA installation
 
@@ -219,10 +219,10 @@ For S3-compatible storage, set `SCAN_STORAGE_DISK=s3`, `AWS_ACCESS_KEY_ID`, `AWS
 
 All layers must accept the same or larger limit:
 
-- Frontend: `VITE_UPLOAD_MAX_MB=100` (early warning only).
-- Laravel: `UPLOAD_MAX_MB=100` (authoritative app validation).
-- PHP: `upload_max_filesize=100M` and `post_max_size=105M` or higher.
-- Nginx: `client_max_body_size 105m;`.
+- Frontend: `VITE_UPLOAD_MAX_MB=2048` (early warning only).
+- Laravel: `UPLOAD_MAX_MB=2048` (authoritative app validation).
+- PHP: `upload_max_filesize=2048M` and `post_max_size=2100M` or higher.
+- Nginx: `client_max_body_size 2100m;` and upload/read timeouts long enough for the slowest supported connection.
 - Apache: configure `LimitRequestBody` high enough or leave it unset, while retaining PHP limits.
 
 Restart PHP/web services after changing their configuration. An upstream rejection may return 413 before Laravel can format the error.

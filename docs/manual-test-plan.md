@@ -7,7 +7,7 @@ Record browser/OS versions, frontend/backend commit, network type, storage disk,
 1. Configure a non-production MySQL database and private local or test bucket storage.
 2. Run `php artisan migrate`, Laravel on port 8000, and the frontend on port 5173.
 3. For another device, configure `VITE_API_BASE_URL`, `APP_URL`, `FRONTEND_URL`, and `PUBLIC_DOWNLOAD_BASE_URL` with a reachable LAN or HTTPS tunnel origin. Restart both servers.
-4. Confirm PHP and reverse-proxy limits exceed the configured 100 MB application limit.
+4. Confirm PHP and reverse-proxy limits exceed the configured 2 GiB application limit.
 5. Open browser DevTools network/application panels and clear old ScanSend site data.
 
 ## 1. Android Chrome camera
@@ -141,4 +141,3 @@ Confirm there is no BLOB/file-content column, token fields are 64-character hash
 - Check CSP, no-store, no-referrer, nosniff, frame denial, and exact CORS origin.
 - Keyboard through every control, confirm visible focus and sensible order, zoom to 200%, use a screen reader for upload progress/errors, and test light/dark contrast.
 - Confirm no raw management tokens appear in URLs, console logs, analytics, or service-worker caches.
-

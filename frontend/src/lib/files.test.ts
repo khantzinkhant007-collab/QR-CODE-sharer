@@ -16,6 +16,17 @@ describe('file selection and preview helpers', () => {
     expect(validateSelectedFile(new File(['1234'], 'photo.jpg', { type: 'image/jpeg' }), 3)).toBe('too_large')
   })
 
+  it('accepts the 2 GiB boundary and rejects the next byte', () => {
+    const maxBytes = 2048 * 1024 * 1024
+    const atLimit = new File(['x'], 'video.mp4', { type: 'video/mp4' })
+    const overLimit = new File(['x'], 'video.mp4', { type: 'video/mp4' })
+    Object.defineProperty(atLimit, 'size', { value: maxBytes })
+    Object.defineProperty(overLimit, 'size', { value: maxBytes + 1 })
+
+    expect(validateSelectedFile(atLimit, maxBytes)).toBeNull()
+    expect(validateSelectedFile(overLimit, maxBytes)).toBe('too_large')
+  })
+
   it('selects image and video preview modes without reading file bytes', () => {
     expect(previewKind('image/webp')).toBe('image')
     expect(previewKind('video/quicktime')).toBe('video')
@@ -28,4 +39,3 @@ describe('file selection and preview helpers', () => {
     expect(formatBytes(10 * 1024 * 1024)).toBe('10 MB')
   })
 })
-

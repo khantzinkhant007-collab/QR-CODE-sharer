@@ -49,7 +49,7 @@ The upload controller is the deliberate future integration point. A production p
 
 ## Public-launch abuse plan
 
-Anonymous 100 MB uploads can be abused. Before public launch, add:
+Anonymous 2 GiB uploads can be abused and require strict cost controls. Before public launch, add:
 
 1. Authentication, verified devices, CAPTCHA/device challenges, or a carefully scoped combination.
 2. Per-user/device/IP daily byte and object quotas—not only request counts.
@@ -68,4 +68,3 @@ Anonymous 100 MB uploads can be abused. Before public launch, add:
 - File validation is allowlist-based but not malware/content analysis.
 - The recipient token may appear in browser history and infrastructure logs; short lifetime and log redaction reduce exposure.
 - Application-level rate limiting needs a shared cache (for example Redis) across multiple production instances.
-
