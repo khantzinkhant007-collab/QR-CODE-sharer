@@ -1,0 +1,188 @@
+openapi: 3.1.0
+info:
+  title: ScanSend API
+  version: 1.0.0
+  description: Private expiring image/video upload and sender management API.
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://files.example.com
+    description: Replace with the production HTTPS origin
+paths:
+  /api/v1/uploads:
+    post:
+      summary: Store a private upload
+      operationId: createUpload
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, expires_in_minutes]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                expires_in_minutes:
+                  type: integer
+                  enum: [10, 60, 1440, 10080]
+                max_downloads:
+                  type: [integer, 'null']
+                  enum: [1, null]
+      responses:
+        '201':
+          description: File and metadata were stored successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUploadResponse'
+        '413': { $ref: '#/components/responses/TooLarge' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+  /api/v1/uploads/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UploadId'
+    get:
+      summary: Read sender-only upload status
+      operationId: getUploadStatus
+      security: [{ ManagementToken: [] }]
+      responses:
+        '200':
+          description: Current safe metadata and file presence
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/UploadStatus' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+    delete:
+      summary: Delete the sender's physical file and disable its QR
+      operationId: deleteUpload
+      security: [{ ManagementToken: [] }]
+      responses:
+        '200':
+          description: Deleted or already deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/UploadStatus' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '503':
+          description: Private storage could not delete the object
+  /d/{downloadToken}:
+    get:
+      summary: Render the public recipient download page
+      operationId: recipientPage
+      parameters:
+        - $ref: '#/components/parameters/DownloadToken'
+      responses:
+        '200': { description: Mobile-friendly HTML download page }
+        '404': { description: Invalid token }
+        '410': { description: Expired, deleted, missing, or limit reached }
+  /d/{downloadToken}/file:
+    get:
+      summary: Atomically claim and stream a file download
+      operationId: downloadFile
+      parameters:
+        - $ref: '#/components/parameters/DownloadToken'
+      responses:
+        '200':
+          description: Binary attachment stream
+          headers:
+            Content-Disposition:
+              schema: { type: string }
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        '404': { description: Invalid token }
+        '410': { description: File cannot be downloaded }
+    head:
+      summary: Validate download without consuming a count
+      operationId: headDownloadFile
+      parameters:
+        - $ref: '#/components/parameters/DownloadToken'
+      responses:
+        '200': { description: Download metadata headers }
+        '404': { description: Invalid token }
+        '410': { description: File cannot be downloaded }
+components:
+  securitySchemes:
+    ManagementToken:
+      type: apiKey
+      in: header
+      name: X-Management-Token
+      description: Sender-only raw token; never place it in a URL.
+  parameters:
+    UploadId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, pattern: '^[0-9A-HJKMNP-TV-Z]{26}$' }
+    DownloadToken:
+      name: downloadToken
+      in: path
+      required: true
+      schema: { type: string, minLength: 40, maxLength: 64 }
+  schemas:
+    UploadBase:
+      type: object
+      required: [id, original_name, mime_type, size_bytes, expires_at, max_downloads, download_count, status]
+      properties:
+        id: { type: string }
+        original_name: { type: string }
+        mime_type: { type: string }
+        size_bytes: { type: integer, minimum: 0 }
+        expires_at: { type: string, format: date-time }
+        max_downloads: { type: [integer, 'null'], enum: [1, null] }
+        download_count: { type: integer, minimum: 0 }
+        status: { type: string, enum: [active, expired, deleted] }
+    CreateUploadData:
+      allOf:
+        - $ref: '#/components/schemas/UploadBase'
+        - type: object
+          required: [download_url, management_token]
+          properties:
+            download_url: { type: string, format: uri }
+            management_token: { type: string, minLength: 40 }
+    CreateUploadResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/CreateUploadData' }
+    UploadStatus:
+      allOf:
+        - $ref: '#/components/schemas/UploadBase'
+        - type: object
+          required: [file_exists]
+          properties:
+            file_exists: { type: boolean }
+    Error:
+      type: object
+      properties:
+        message: { type: string }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+  responses:
+    ValidationError:
+      description: Invalid file, MIME, size, expiration, or limit
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    TooLarge:
+      description: Request exceeds the application or upstream limit
+    RateLimited:
+      description: Too many requests
+    NotFound:
+      description: Unknown upload or invalid management token
+
