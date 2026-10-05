@@ -6,23 +6,32 @@
 }
 * { box-sizing: border-box; }
 body {
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   display: grid;
   place-items: center;
   padding: 24px;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
-    radial-gradient(circle at 86% 15%, rgba(238, 163, 84, .15), transparent 34%),
-    linear-gradient(145deg, rgba(10, 16, 25, .77), rgba(14, 24, 33, .84)),
-    url('/hero-dusk.webp') center / cover;
-  background-attachment: fixed;
+    linear-gradient(115deg, rgba(10, 19, 29, .48), rgba(14, 24, 33, .3)),
+    url('/hero-dusk.webp') center / cover no-repeat;
+  background-color: #182532;
 }
 .card {
   width: min(100%, 520px);
   padding: 34px;
   border: 1px solid rgba(255, 255, 255, .24);
   border-radius: 32px;
-  background: rgba(51, 61, 71, .53);
+  background: rgba(34, 45, 57, .38);
   box-shadow: 0 24px 64px rgba(0, 6, 17, .48), inset 0 1px 0 rgba(255, 255, 255, .14);
   -webkit-backdrop-filter: blur(24px) saturate(145%);
   backdrop-filter: blur(24px) saturate(145%);
@@ -77,6 +86,7 @@ dd { margin: 0; overflow-wrap: anywhere; text-align: right; font-weight: 700; }
   .card { background: #26333f; }
 }
 @media (prefers-reduced-transparency: reduce) {
+  body::before { background-image: none; }
   .card { background: #26333f; -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 @media (prefers-reduced-motion: reduce) { .button { transition: none; } .button:hover { transform: none; } }

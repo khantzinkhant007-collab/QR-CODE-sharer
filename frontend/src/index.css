@@ -4,11 +4,12 @@
 :root {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #0f172a;
-  background: #edf7f8;
+  background: #d6e1e7;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
+:root.dark { background: #182532; color-scheme: dark; }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -47,63 +48,71 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 }
 
 .app-shell {
-  background:
-    radial-gradient(circle at 9% 5%, rgba(91, 219, 214, .34), transparent 31%),
-    radial-gradient(circle at 91% 12%, rgba(170, 153, 245, .31), transparent 29%),
-    radial-gradient(circle at 70% 82%, rgba(91, 184, 239, .25), transparent 31%),
-    linear-gradient(145deg, #f5fbfc 0%, #e9f1f9 54%, #f2faf5 100%);
-  background-attachment: fixed;
+  position: relative;
+  isolation: isolate;
 }
-.dark .app-shell {
+/* One stationary scene behind every route, including long and mobile pages. */
+.app-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
-    radial-gradient(circle at 86% 15%, rgba(238, 163, 84, .12), transparent 34%),
-    radial-gradient(circle at 10% 70%, rgba(58, 143, 214, .15), transparent 39%),
-    linear-gradient(145deg, rgba(10, 16, 25, .89), rgba(14, 24, 33, .92)),
-    url('/hero-dusk.webp') center / cover;
-  background-attachment: fixed;
+    linear-gradient(115deg, rgba(236, 245, 250, .68), rgba(229, 239, 245, .48)),
+    url('/hero-dusk.webp') center / cover no-repeat;
+  background-color: #d6e1e7;
 }
-.glass-panel, .glass-hero, .glass-header, .glass-soft, .glass-inset {
+.dark .app-shell::before {
+  background:
+    linear-gradient(115deg, rgba(10, 19, 29, .48), rgba(14, 24, 33, .3)),
+    url('/hero-dusk.webp') center / cover no-repeat;
+  background-color: #182532;
+}
+.glass-panel, .glass-header, .glass-soft, .glass-inset {
   -webkit-backdrop-filter: blur(22px) saturate(145%);
   backdrop-filter: blur(22px) saturate(145%);
 }
 .glass-panel {
   border: 1px solid rgba(255, 255, 255, .78);
-  background: rgba(255, 255, 255, .64);
+  background: rgba(255, 255, 255, .42);
   box-shadow: 0 16px 44px rgba(35, 76, 106, .11), inset 0 1px 0 rgba(255, 255, 255, .76);
 }
 .glass-hero {
-  border: 1px solid rgba(255, 255, 255, .88);
-  background: linear-gradient(115deg, rgba(248, 253, 255, .88), rgba(231, 247, 250, .72)), url('/hero-dusk.webp') center / cover;
+  border: 1px solid rgba(255, 255, 255, .56);
+  background: linear-gradient(115deg, rgba(255, 255, 255, .22), rgba(231, 247, 250, .08));
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  backdrop-filter: blur(6px) saturate(120%);
   box-shadow: 0 24px 64px rgba(38, 87, 122, .13), inset 0 1px 0 rgba(255, 255, 255, .9);
 }
 .hero-copy {
   border: 1px solid rgba(255, 255, 255, .66);
-  background: rgba(255, 255, 255, .5);
+  background: rgba(255, 255, 255, .3);
   -webkit-backdrop-filter: blur(22px) saturate(145%);
   backdrop-filter: blur(22px) saturate(145%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55);
 }
 .glass-header {
   border-bottom: 1px solid rgba(255, 255, 255, .68);
-  background: rgba(248, 253, 255, .64);
+  background: rgba(248, 253, 255, .4);
   box-shadow: 0 6px 24px rgba(39, 89, 111, .06);
 }
 .glass-soft {
   border: 1px solid rgba(255, 255, 255, .66);
-  background: rgba(255, 255, 255, .43);
+  background: rgba(255, 255, 255, .28);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5);
 }
 .glass-inset, .metric {
   border: 1px solid rgba(255, 255, 255, .46);
-  background: rgba(222, 242, 246, .58);
+  background: rgba(222, 242, 246, .32);
 }
 .glass-dropzone {
   border: 1.5px dashed rgba(14, 116, 120, .55);
-  background: rgba(255, 255, 255, .4);
+  background: rgba(255, 255, 255, .2);
   -webkit-backdrop-filter: blur(15px);
   backdrop-filter: blur(15px);
 }
-.glass-dropzone:hover { background: rgba(255, 255, 255, .62); }
+.glass-dropzone:hover { background: rgba(255, 255, 255, .36); }
 .glass-feature {
   border: 1px solid rgba(143, 231, 228, .32);
   background: linear-gradient(135deg, rgba(10, 83, 99, .87), rgba(18, 113, 123, .76));
@@ -147,20 +156,20 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .secondary-button:hover { border-color: rgba(13, 148, 136, .46); background: rgba(255, 255, 255, .82); }
 .dark .glass-panel {
   border-color: rgba(255, 255, 255, .2);
-  background: rgba(55, 64, 73, .43);
+  background: rgba(34, 45, 57, .38);
   box-shadow: 0 18px 48px rgba(0, 5, 13, .35), inset 0 1px 0 rgba(255, 255, 255, .13);
 }
 .dark .glass-hero {
   border-color: rgba(255, 255, 255, .24);
-  background: linear-gradient(105deg, rgba(9, 15, 25, .28), rgba(9, 15, 25, .15)), url('/hero-dusk.webp') center / cover;
+  background: linear-gradient(105deg, rgba(193, 217, 236, .1), rgba(24, 36, 48, .12));
   box-shadow: 0 24px 64px rgba(0, 6, 17, .48), inset 0 1px 0 rgba(255, 255, 255, .16);
 }
-.dark .hero-copy { border-color: rgba(255, 255, 255, .19); background: rgba(25, 33, 42, .48); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1); }
-.dark .glass-header { border-color: rgba(255, 255, 255, .16); background: rgba(29, 37, 46, .57); box-shadow: 0 7px 26px rgba(0, 5, 13, .24); }
+.dark .hero-copy { border-color: rgba(255, 255, 255, .22); background: rgba(21, 32, 45, .3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1); }
+.dark .glass-header { border-color: rgba(255, 255, 255, .2); background: rgba(22, 34, 47, .34); box-shadow: 0 7px 26px rgba(0, 5, 13, .18); }
 .dark .glass-soft { border-color: rgba(255, 255, 255, .17); background: rgba(204, 217, 230, .1); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09); }
 .dark .glass-inset, .dark .metric { border-color: rgba(255, 255, 255, .12); background: rgba(208, 222, 233, .09); }
-.dark .glass-dropzone { border-color: rgba(228, 242, 250, .43); background: rgba(35, 46, 57, .37); }
-.dark .glass-dropzone:hover { background: rgba(52, 67, 80, .55); }
+.dark .glass-dropzone { border-color: rgba(228, 242, 250, .43); background: rgba(35, 46, 57, .18); }
+.dark .glass-dropzone:hover { background: rgba(52, 67, 80, .35); }
 .dark .glass-feature { border-color: rgba(211, 237, 247, .22); background: linear-gradient(130deg, rgba(30, 75, 96, .69), rgba(55, 66, 78, .56)); }
 .dark .glass-warning { border-color: rgba(253, 186, 116, .24); background: rgba(139, 75, 22, .26); color: #fde9c3; }
 .dark .glass-error { border-color: rgba(251, 113, 133, .28); background: rgba(136, 36, 67, .23); color: #ffe4e6; }
@@ -169,12 +178,14 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .dark .secondary-button:hover { border-color: rgba(203, 233, 246, .39); background: rgba(211, 229, 241, .21); }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-panel, .glass-hero, .glass-header, .glass-soft, .hero-copy, .secondary-button { background: #f2f9fb; }
-  .dark .glass-panel, .dark .glass-hero, .dark .glass-header, .dark .glass-soft, .dark .hero-copy, .dark .secondary-button { background: #26333f; }
+  .glass-panel, .glass-hero, .glass-header, .glass-soft, .glass-inset, .glass-dropzone, .empty-state, .metric, .hero-copy, .secondary-button { background: #f2f9fb; }
+  .dark .glass-panel, .dark .glass-hero, .dark .glass-header, .dark .glass-soft, .dark .glass-inset, .dark .glass-dropzone, .dark .empty-state, .dark .metric, .dark .hero-copy, .dark .secondary-button { background: #26333f; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .glass-panel, .glass-hero, .glass-header, .glass-soft, .hero-copy, .secondary-button { background: #f2f9fb; backdrop-filter: none; -webkit-backdrop-filter: none; }
-  .dark .glass-panel, .dark .glass-hero, .dark .glass-header, .dark .glass-soft, .dark .hero-copy, .dark .secondary-button { background: #26333f; }
+  .app-shell::before, .dark .app-shell::before { background-image: none; }
+  .glass-panel, .glass-hero, .glass-header, .glass-soft, .glass-inset, .glass-dropzone, .empty-state, .metric, .hero-copy, .secondary-button { background: #f2f9fb; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .dark .glass-panel, .dark .glass-hero, .dark .glass-header, .dark .glass-soft, .dark .glass-inset, .dark .glass-dropzone, .dark .empty-state, .dark .metric, .dark .hero-copy, .dark .secondary-button { background: #26333f; }
+  .glass-feature, .glass-warning, .glass-error { backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 
 .upload-progress { appearance: none; overflow: hidden; border: 0; border-radius: 999px; background: #e2e8f0; }
