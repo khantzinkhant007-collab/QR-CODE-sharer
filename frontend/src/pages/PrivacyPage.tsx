@@ -30,15 +30,15 @@ export function PrivacyPage() {
       <h1 className="page-title">{t('privacy.title')}</h1>
       <p className="page-subtitle">{copy.subtitle}</p>
     </header>
-    <section className="rounded-3xl bg-teal-900 p-6 text-teal-50 shadow-xl sm:p-8"><p className="text-lg leading-8">{t('privacy.body')}</p></section>
+    <section className="glass-feature rounded-3xl p-6 text-teal-50 sm:p-8"><p className="text-lg leading-8">{t('privacy.body')}</p></section>
     <section>
       <h2 className="mb-4 text-2xl font-black">{t('privacy.items')}</h2>
       <div className="grid gap-4 md:grid-cols-2">{copy.cards.map(([title, body], index) => {
         const Icon = icons[index]
-        return <article key={title} className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"><Icon className="mb-5 text-teal-700 dark:text-teal-300" size={30} /><h3 className="text-lg font-black">{title}</h3><p className="mt-2 leading-7 text-slate-600 dark:text-slate-300">{body}</p></article>
+        return <article key={title} className="glass-panel rounded-3xl p-6"><Icon className="mb-5 text-teal-700 dark:text-teal-300" size={30} /><h3 className="text-lg font-black">{title}</h3><p className="mt-2 leading-7 text-slate-600 dark:text-slate-300">{body}</p></article>
       })}</div>
     </section>
-    <div className="flex gap-3 rounded-2xl border border-slate-200 p-5 dark:border-slate-800"><EyeOff className="shrink-0 text-teal-700" /><div><strong>{t('privacy.noAnalytics')}</strong><p className="mt-2 text-sm leading-6 text-slate-500">{copy.footer}</p></div></div>
+    <div className="glass-soft flex gap-3 rounded-2xl p-5"><EyeOff className="shrink-0 text-teal-700" /><div><strong>{t('privacy.noAnalytics')}</strong><p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{copy.footer}</p></div></div>
   </div>
 }
 

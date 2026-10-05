@@ -6,7 +6,7 @@ export function FilePreview({ file, url, onRemove, onChange }: { file: File; url
   const { t } = useI18n()
   const kind = previewKind(file.type)
 
-  return <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/40 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+  return <section className="glass-panel overflow-hidden rounded-3xl">
     <div className="grid gap-0 md:grid-cols-[1.15fr_.85fr]">
       <div className="grid min-h-64 place-items-center bg-slate-950">
         {kind === 'image' && <img src={url} alt={t('common.imagePreview')} className="max-h-[440px] size-full object-contain" />}

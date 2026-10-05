@@ -88,7 +88,7 @@ export function CameraCapture({ open, onSelect, onClose }: Props) {
   }
 
   return <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/80 p-4 backdrop-blur" role="dialog" aria-modal="true" aria-labelledby="camera-title">
-    <section className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-900">
+    <section className="glass-panel w-full max-w-2xl overflow-hidden rounded-3xl">
       <header className="flex items-center justify-between p-5"><div><h2 id="camera-title" className="text-xl font-black">{t('camera.title')}</h2><p className="text-sm text-slate-500">{t('camera.permission')}</p></div><button type="button" className="icon-button" onClick={close} aria-label={t('camera.cancel')}><X /></button></header>
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-950">
         {captured && previewUrl ? <img src={previewUrl} alt={t('common.imagePreview')} className="size-full object-contain" /> : <video ref={videoRef} muted playsInline className="size-full object-cover" />}
