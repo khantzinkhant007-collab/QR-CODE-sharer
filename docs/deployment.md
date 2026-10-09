@@ -46,6 +46,16 @@ Railway can deploy the Laravel application from this monorepo with Railpack:
 
 ## Laravel environment
 
+### Password-protection rollout
+
+Deploy the backend **before** the password-enabled frontend. Run `php artisan migrate --force` to add the nullable `uploads.password_hash` column, then refresh config/route/view caches. Existing links remain unprotected; users must create a new protected upload and revoke the old link if protection is required. Rolling the backend back after accepting protected uploads is unsafe: old controllers do not enforce the password gate.
+
+Use a persistent server-side `SESSION_DRIVER=database` or `redis`, `SESSION_SECURE_COOKIE=true`, `SESSION_HTTP_ONLY=true`, and `SESSION_SAME_SITE=lax`. The existing sessions migration must be applied. Use a shared cache (`database` or Redis) for rate limits across instances. Do not use the array driver in production. Ensure the platform forwards cookies and does not cache `/d/*` responses.
+
+Configure trusted proxies only for your actual ingress so `$request->ip()` reflects the client. Do not blindly trust arbitrary X-Forwarded-For headers. Shared NATs/proxy misconfiguration can cause users to share a throttle bucket. General download limits default to 120/minute/IP (`DOWNLOAD_RATE_LIMIT_PER_MINUTE`); password submissions are limited to 5/minute/IP plus 30/minute/link. Monitor 429s and abuse at the edge. Never record password bodies or raw download paths in access/request logs.
+
+Smoke test a newly protected upload: an incognito browser sees no filename before unlocking, wrong passwords fail, a copied `/file` URL returns 403, and a correct password enables downloading. Confirm an unprotected existing link still works. The frontend refuses to share a "protected" link if an old server ignores the password and attempts to delete that unprotected upload.
+
 Set production values through the platform secret manager:
 
 ```dotenv

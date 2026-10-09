@@ -30,6 +30,7 @@ describe('upload client', () => {
   it('uploads multipart binary data and emits progress only before backend success', async () => {
     apiMocks.post.mockImplementation(async (_url, body: FormData, config) => {
       expect(body.get('file')).toBeInstanceOf(File)
+      expect(body.has('password')).toBe(false)
       config.onUploadProgress({ loaded: 4, total: 4 })
       return { data: { data: apiData } }
     })
@@ -50,12 +51,47 @@ describe('upload client', () => {
     })).rejects.toBeInstanceOf(UploadCancelledError)
   })
 
+  it('sends the password only in the request body, never in saved history or the link', async () => {
+    const password = 'a long private passphrase'
+    apiMocks.post.mockImplementation(async (url, body: FormData) => {
+      expect(url).toBe('/api/v1/uploads')
+      expect(body.get('password')).toBe(password)
+      return { data: { data: { ...apiData, password_protected: true } } }
+    })
+    const result = await uploadFile({
+      file: new File(['data'], 'photo.jpg', { type: 'image/jpeg' }), expirationMinutes: 60,
+      maxDownloads: 1, password, signal: new AbortController().signal, onProgress: vi.fn(),
+    })
+    expect(result.passwordProtected).toBe(true)
+    expect(JSON.stringify(result)).not.toContain(password)
+    expect(result.downloadUrl).toBe(apiData.download_url)
+  })
+
   it('maps network and API failures', () => {
     expect(mapApiError(new AxiosError('Network Error'))).toBe('network_error')
     const tooLarge = new AxiosError('Large', 'ERR_BAD_RESPONSE', undefined, undefined, {
       data: {}, status: 413, statusText: 'Payload Too Large', headers: {}, config: {} as never,
     })
     expect(mapApiError(tooLarge)).toBe('too_large')
+  })
+
+  it('deletes and rejects an upload if an old backend ignores password protection', async () => {
+    apiMocks.post.mockResolvedValue({ data: { data: apiData } })
+    apiMocks.delete.mockResolvedValue({ data: { data: { ...apiData, status: 'deleted' } } })
+    await expect(uploadFile({
+      file: new File(['data'], 'photo.jpg', { type: 'image/jpeg' }), expirationMinutes: 60,
+      maxDownloads: null, password: 'a long private passphrase', signal: new AbortController().signal, onProgress: vi.fn(),
+    })).rejects.toThrow('password_not_supported')
+    expect(apiMocks.delete).toHaveBeenCalledWith('/api/v1/uploads/01UPLOAD', { headers: { 'X-Management-Token': 'management' } })
+  })
+
+  it('does not claim cleanup succeeded when an old backend rejects deletion', async () => {
+    apiMocks.post.mockResolvedValue({ data: { data: apiData } })
+    apiMocks.delete.mockRejectedValue(new Error('offline'))
+    await expect(uploadFile({
+      file: new File(['data'], 'photo.jpg', { type: 'image/jpeg' }), expirationMinutes: 60,
+      maxDownloads: null, password: 'a long private passphrase', signal: new AbortController().signal, onProgress: vi.fn(),
+    })).rejects.toThrow('password_cleanup_failed')
   })
 
   it('keeps management tokens in request headers for status and deletion', async () => {

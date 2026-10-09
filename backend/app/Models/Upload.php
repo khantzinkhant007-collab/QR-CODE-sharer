@@ -29,6 +29,7 @@ class Upload extends Model
         'sha256',
         'download_token_hash',
         'management_token_hash',
+        'password_hash',
         'expires_at',
         'max_downloads',
         'download_count',
@@ -37,6 +38,7 @@ class Upload extends Model
     ];
 
     protected $hidden = [
+        'password_hash',
         'storage_disk',
         'storage_path',
         'sha256',

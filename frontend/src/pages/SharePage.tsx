@@ -83,6 +83,7 @@ export function SharePage() {
   return <div className="mx-auto max-w-4xl space-y-6">
     <header className="text-center"><p className="section-kicker justify-center"><Check size={16} />{t('share.created')}</p><h1 className="page-title">{t('share.title')}</h1><p className="page-subtitle mx-auto">{t('share.subtitle')}</p></header>
     {localUrl && <div className="glass-warning rounded-2xl p-4 text-sm font-semibold">{t('share.localWarning')}</div>}
+    {(statusQuery.data?.password_protected ?? record.passwordProtected) && <p className="glass-soft rounded-2xl p-4 text-sm font-semibold">{t('share.passwordProtected')}</p>}
     <section className="glass-panel grid overflow-hidden rounded-[2rem] lg:grid-cols-[1fr_.92fr]">
       <div className="glass-inset grid place-items-center p-6 sm:p-10">{qrQuery.isLoading ? <div className="skeleton aspect-square w-full max-w-sm" /> : qrQuery.data ? <div className="rounded-[2rem] border border-white/80 bg-white p-5 shadow-xl"><img src={qrQuery.data} alt={`QR download link for ${record.originalName}`} className="aspect-square w-full max-w-sm" /></div> : <p role="alert">{t('common.error')}</p>}</div>
       <div className="flex flex-col p-6 sm:p-8"><div className="flex items-start justify-between gap-4"><div className="min-w-0"><p className="truncate text-xl font-black">{record.originalName}</p><p className="mt-1 text-sm text-slate-500">{record.mimeType} · {formatBytes(record.sizeBytes)}</p></div><StatusBadge status={status} /></div>

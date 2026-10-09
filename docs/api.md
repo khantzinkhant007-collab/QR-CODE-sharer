@@ -6,6 +6,8 @@ All API responses use `Cache-Control: no-store`. Production requests must use HT
 
 ## Create upload
 
+Optional `password` protects new files: at least 12 characters and at most 72 UTF-8 bytes. Omit it or send an empty string for no password. Responses include `password_protected` (boolean), never the password or hash. Passwords cannot be retrieved or reset; create a new upload instead.
+
 `POST /api/v1/uploads` with `multipart/form-data`:
 
 | Field | Required | Value |
@@ -13,6 +15,7 @@ All API responses use `Cache-Control: no-store`. Production requests must use HT
 | `file` | yes | One allowed image/video binary, default maximum 2 GiB |
 | `expires_in_minutes` | yes | `10`, `60`, `1440`, or `10080` |
 | `max_downloads` | no | omit/null for unlimited-until-expiration, or `1` |
+| `password` | no | 12+ characters, at most 72 UTF-8 bytes; omit/empty for no protection |
 
 The server detects MIME using file contents and stores the file privately before returning `201`. The response includes one-time raw `management_token` and a public `download_url`, but never a disk name, object key, filesystem path, bucket, or token hash.
 
@@ -36,9 +39,13 @@ It returns status, expiration, current/max downloads, metadata, and `file_exists
 
 `GET /d/{downloadToken}` hashes the URL token, renders metadata only, and never previews uploaded content. Invalid tokens return `404`; expired, deleted, missing, and download-limit states return a friendly `410` response.
 
+Protected files render a generic password form instead of file metadata. Submit `POST /d/{downloadToken}/unlock` with `password`, the form's `_token` CSRF value, and the same session cookie. A correct password redirects to the recipient page with a 15-minute file-specific session grant. Wrong passwords redirect with a generic form error, never echoed password input. Missing/invalid CSRF returns 419. The form uses a relative backend URL and requires cookies; no cross-origin frontend credentials are needed.
+
 ## Recipient file
 
 `GET /d/{downloadToken}/file` revalidates all rules inside a row-locked transaction, increments the count, and streams an attachment with safe Unicode filename handling. `HEAD` validates and returns metadata without incrementing. Responses use no-store, no-referrer, anti-sniffing, and anti-framing headers.
+
+Protected GET and HEAD requests require the unlocked session or return 403; a password in the URL is not accepted. All recipient endpoints are rate-limited (default 120/minute/IP), with stricter unlock limits of 5/minute/IP and 30/minute/link. A 429 response includes Retry-After.
 
 ## Example create response
 
@@ -53,6 +60,7 @@ It returns status, expiration, current/max downloads, metadata, and `file_exists
     "expires_at": "2026-08-18T12:00:00Z",
     "max_downloads": 1,
     "download_count": 0,
+    "password_protected": false,
     "status": "active",
     "management_token": "separate-random-management-token"
   }

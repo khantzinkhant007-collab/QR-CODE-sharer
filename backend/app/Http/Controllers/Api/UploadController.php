@@ -8,6 +8,7 @@ use App\Models\Upload;
 use App\Support\SecureToken;
 use App\Support\UploadResponseData;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -62,6 +63,7 @@ class UploadController extends Controller
                 'sha256' => $sha256,
                 'download_token_hash' => SecureToken::hash($downloadToken),
                 'management_token_hash' => SecureToken::hash($managementToken),
+                'password_hash' => $request->filled('password') ? Hash::make($request->input('password')) : null,
                 'expires_at' => now()->addMinutes((int) $request->integer('expires_in_minutes')),
                 'max_downloads' => $request->filled('max_downloads') ? $request->integer('max_downloads') : null,
                 'download_count' => 0,

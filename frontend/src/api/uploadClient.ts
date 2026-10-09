@@ -50,6 +50,7 @@ export async function uploadFile(options: {
   file: File
   expirationMinutes: number
   maxDownloads: number | null
+  password?: string
   signal: AbortSignal
   onProgress: (progress: UploadProgress) => void
 }): Promise<UploadRecord> {
@@ -57,6 +58,7 @@ export async function uploadFile(options: {
   formData.append('file', options.file, options.file.name)
   formData.append('expires_in_minutes', String(options.expirationMinutes))
   if (options.maxDownloads !== null) formData.append('max_downloads', String(options.maxDownloads))
+  if (options.password) formData.append('password', options.password)
   const startedAt = performance.now()
 
   try {
@@ -67,6 +69,15 @@ export async function uploadFile(options: {
       ),
     })
     const data = response.data.data
+    // Never present a protected QR if an older backend silently ignored the password.
+    if (options.password && data.password_protected !== true) {
+      try {
+        await deleteRemoteUpload(data.id, data.management_token)
+      } catch {
+        throw new Error('password_cleanup_failed')
+      }
+      throw new Error('password_not_supported')
+    }
     return {
       id: data.id,
       originalName: data.original_name,
@@ -79,6 +90,7 @@ export async function uploadFile(options: {
       managementToken: data.management_token,
       createdAt: new Date().toISOString(),
       localStatus: data.status,
+      passwordProtected: data.password_protected ?? false,
     }
   } catch (error) {
     if (axios.isCancel(error)) throw new UploadCancelledError()

@@ -11,5 +11,9 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/d/{downloadToken}', [DownloadController::class, 'show'])->name('downloads.show');
-Route::match(['GET', 'HEAD'], '/d/{downloadToken}/file', [DownloadController::class, 'file'])->name('downloads.file');
+Route::middleware('throttle:downloads')->group(function (): void {
+    Route::get('/d/{downloadToken}', [DownloadController::class, 'show'])->name('downloads.show');
+    Route::post('/d/{downloadToken}/unlock', [DownloadController::class, 'unlock'])
+        ->middleware('throttle:download-passwords')->name('downloads.unlock');
+    Route::match(['GET', 'HEAD'], '/d/{downloadToken}/file', [DownloadController::class, 'file'])->name('downloads.file');
+});

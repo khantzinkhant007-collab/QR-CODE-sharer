@@ -1,6 +1,7 @@
 export type UploadStatus = 'active' | 'expired' | 'deleted' | 'failed'
 
 export interface UploadRecord {
+  passwordProtected?: boolean
   id: string
   originalName: string
   mimeType: string
@@ -15,6 +16,7 @@ export interface UploadRecord {
 }
 
 export interface UploadApiData {
+  password_protected?: boolean
   id: string
   original_name: string
   mime_type: string
@@ -28,6 +30,7 @@ export interface UploadApiData {
 }
 
 export interface UploadStatusData {
+  password_protected?: boolean
   id: string
   original_name: string
   mime_type: string

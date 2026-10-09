@@ -30,5 +30,17 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute((int) config('scansend.upload_rate_limit_per_minute'))
                 ->by($request->ip() ?: 'unknown');
         });
+
+        RateLimiter::for('downloads', function (Request $request): Limit {
+            return Limit::perMinute((int) config('scansend.download_rate_limit_per_minute'))
+                ->by($request->ip() ?: 'unknown');
+        });
+
+        RateLimiter::for('download-passwords', function (Request $request): array {
+            return [
+                Limit::perMinute(5)->by('ip:'.($request->ip() ?: 'unknown')),
+                Limit::perMinute(30)->by('token:'.hash('sha256', (string) $request->route('downloadToken'))),
+            ];
+        });
     }
 }

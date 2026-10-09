@@ -35,6 +35,7 @@ export function HomePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [expiration, setExpiration] = useState(1440)
   const [oneDownload, setOneDownload] = useState(false)
+  const [password, setPassword] = useState('')
   const [progress, setProgress] = useState<UploadProgress | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -82,6 +83,10 @@ export function HomePage() {
 
   const startUpload = async () => {
     if (!file || uploading) return
+    if (password && (Array.from(password).length < 12 || new TextEncoder().encode(password).length > 72)) {
+      setError('password_invalid')
+      return
+    }
     if (!online) {
       setError('offline')
       return
@@ -102,10 +107,12 @@ export function HomePage() {
         file,
         expirationMinutes: expiration,
         maxDownloads: oneDownload ? 1 : null,
+        password: password || undefined,
         signal: controller.signal,
         onProgress: setProgress,
       })
       await saveUpload(record)
+      setPassword('')
       await queryClient.invalidateQueries({ queryKey: ['history'] })
       allowSuccessNavigationRef.current = true
       navigate(`/share/${record.id}`)
@@ -149,6 +156,11 @@ export function HomePage() {
     {file && previewUrl && <div className="space-y-6">
       <FilePreview file={file} url={previewUrl} onRemove={() => { if (!uploading) setFile(null) }} onChange={() => inputRef.current?.click()} />
       <section className="glass-panel grid gap-6 rounded-3xl p-6 lg:grid-cols-2">
+        <div className="lg:col-span-2">
+          <label htmlFor="download-password" className="mb-2 flex items-center gap-2 font-black"><LockKeyhole size={18} />{t('file.password')}</label>
+          <input id="download-password" type="password" autoComplete="new-password" minLength={12} maxLength={72} value={password} disabled={uploading} onChange={(event) => setPassword(event.target.value)} aria-describedby="download-password-hint" className="glass-inset min-h-12 w-full rounded-2xl px-4 py-3" />
+          <p id="download-password-hint" className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t('file.passwordHint')}</p>
+        </div>
         <fieldset disabled={uploading}><legend className="mb-3 font-black">{t('file.expiration')}</legend><div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2">{expirations.map((option) => <label key={option.value} className={`cursor-pointer rounded-2xl border p-3 text-center text-sm font-bold transition has-focus-visible:ring-4 has-focus-visible:ring-teal-300 ${expiration === option.value ? 'border-teal-600 bg-teal-50/80 text-teal-900 dark:bg-teal-700/25 dark:text-teal-100' : 'glass-soft'}`}><input className="sr-only" type="radio" name="expiration" value={option.value} checked={expiration === option.value} onChange={() => setExpiration(option.value)} />{locale === 'ja' ? option.ja : option.en}</label>)}</div></fieldset>
         <div className="flex flex-col justify-between gap-5"><label className="glass-inset flex cursor-pointer items-start gap-3 rounded-2xl p-4"><input type="checkbox" className="mt-1 size-5 accent-teal-700" checked={oneDownload} disabled={uploading} onChange={(event) => setOneDownload(event.target.checked)} /><span><strong className="block">{t('file.oneDownload')}</strong><small className="text-slate-500 dark:text-slate-300">{t('file.oneDownloadHint')}</small></span></label><button type="button" className="primary-button min-h-14 w-full justify-center" disabled={uploading || !online} onClick={() => void startUpload()}>{uploading ? <RefreshCw className="animate-spin" size={20} /> : <QrCode size={20} />}{uploading ? t('upload.preparing') : t('file.upload')}</button></div>
       </section>

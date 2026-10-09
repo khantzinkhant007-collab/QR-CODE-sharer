@@ -11,7 +11,8 @@
 - **Streaming:** upload storage, SHA-256 calculation, and downloads avoid loading a full large video into PHP/JavaScript memory.
 - **Atomic count:** a database row lock serializes one-download claims. HEAD never consumes a count.
 - **Lifecycle:** sender deletion removes physical bytes and marks metadata. A scheduled batched command purges expiration and tolerates already-missing objects.
-- **Rate limiting:** upload creation is throttled per IP; sender endpoints have separate Laravel throttles.
+- **Rate limiting:** upload creation is throttled per IP; sender endpoints have separate Laravel throttles. Recipient pages, GET/HEAD downloads and unlock requests share a 120 requests/minute/IP limit (`DOWNLOAD_RATE_LIMIT_PER_MINUTE`). Password submissions additionally allow 5/minute/IP across all links and 30/minute/link across IPs. Limits include successful submissions and invalid links; responses return 429 with Retry-After. Per-link keys use token hashes, not raw URLs.
+- **Optional password gate:** new uploads accept a 12-character minimum, 72 UTF-8 byte maximum password (bcrypt's byte limit). Only a salted password hash is persisted, hidden from model serialization and API responses. A CSRF-protected backend form unlocks that file in the recipient session for 15 minutes. Both the details page and the actual GET/HEAD file endpoint enforce the gate. Unlocking never consumes a download; expiry, deletion and download limits still apply. Passwords are not included in QR codes, URLs or IndexedDB.
 - **Browser isolation:** sender management history lives in IndexedDB; no file content is stored there. Clearing browser data removes management access.
 - **Response policy:** recipient and API responses use `no-store`, `no-referrer`, `nosniff`, frame denial, a restrictive CSP, and permissions policy.
 - **CORS:** only the configured `FRONTEND_URL` is allowed; there is no production wildcard.
@@ -22,7 +23,7 @@
 
 Versioned upload/management routes are stateless API routes and do not use cookie authentication, so CSRF tokens are not an authorization mechanism. The management capability is the explicit header token. Exact-origin CORS limits which browser origins can call the API; it is not a replacement for token validation.
 
-If cookie authentication is added later, add Laravel Sanctum/session CSRF protections rather than reusing the current stateless assumptions.
+Recipient password unlocks are stateful web routes with Laravel session and CSRF middleware. Successful unlock regenerates the session ID; cookies default to Secure in production, HttpOnly and SameSite=Lax. Keep these controls enabled. The sender's upload/management API remains stateless.
 
 ## CSP deployment
 
@@ -62,7 +63,8 @@ Anonymous 2 GiB uploads can be abused and require strict cost controls. Before p
 
 ## Residual risks
 
-- A bearer download URL is transferable until it expires or is deleted; anyone holding it has access.
+- A link without a password is transferable until it expires or is deleted; anyone holding it has access. Existing links are not retroactively password-protected. Create a new protected upload and revoke an old link if needed. Anyone holding both the link and password can still access it; QR scanning is not identity verification. Share the password through a separate channel, and use a unique, long passphrase. This is access control, not end-to-end encryption.
+- Rate limits reduce guessing but do not eliminate distributed attacks. Per-link limits can temporarily block legitimate recipients during an attack, and NAT users share an IP budget. Tune and monitor edge limits as well. Configure only trusted proxy addresses so client IPs are accurate without accepting forged forwarding headers.
 - A sender who clears IndexedDB loses the raw management token permanently.
 - GET count is committed before bytes finish streaming, so an interrupted first one-time download consumes the link. This conservative choice prevents concurrent bypass.
 - File validation is allowlist-based but not malware/content analysis.

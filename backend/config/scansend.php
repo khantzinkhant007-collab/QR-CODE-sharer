@@ -25,5 +25,6 @@ return [
     'public_download_base_url' => rtrim((string) env('PUBLIC_DOWNLOAD_BASE_URL', env('APP_URL', 'http://localhost:8000')), '/'),
     'frontend_url' => rtrim((string) env('FRONTEND_URL', 'http://localhost:5173'), '/'),
     'upload_rate_limit_per_minute' => (int) env('UPLOAD_RATE_LIMIT_PER_MINUTE', 10),
+    'download_rate_limit_per_minute' => (int) env('DOWNLOAD_RATE_LIMIT_PER_MINUTE', 120),
     'purge_batch_size' => (int) env('UPLOAD_PURGE_BATCH_SIZE', 100),
 ];

@@ -30,6 +30,11 @@ paths:
                 max_downloads:
                   type: [integer, 'null']
                   enum: [1, null]
+                password:
+                  type: [string, 'null']
+                  maxLength: 72
+                  writeOnly: true
+                  description: Optional; empty/null disables protection. Nonempty passwords require at least 12 characters and no more than 72 UTF-8 bytes.
       responses:
         '201':
           description: File and metadata were stored successfully
@@ -84,9 +89,33 @@ paths:
       parameters:
         - $ref: '#/components/parameters/DownloadToken'
       responses:
-        '200': { description: Mobile-friendly HTML download page }
+        '200': { description: Mobile-friendly HTML download page or password form without file metadata }
         '404': { description: Invalid token }
         '410': { description: Expired, deleted, missing, or limit reached }
+        '429': { $ref: '#/components/responses/RateLimited' }
+  /d/{downloadToken}/unlock:
+    post:
+      summary: Unlock a protected file for 15 minutes in the recipient session
+      operationId: unlockDownload
+      description: Requires the session cookie and CSRF token from the recipient form. Passwords are never accepted in URLs.
+      parameters:
+        - $ref: '#/components/parameters/DownloadToken'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [password, _token]
+              properties:
+                password: { type: string, maxLength: 72, writeOnly: true }
+                _token: { type: string }
+      responses:
+        '302': { description: Redirect to recipient page with unlock grant or generic validation errors }
+        '404': { description: Invalid token }
+        '410': { description: Link unavailable }
+        '419': { description: Missing or invalid CSRF token }
+        '429': { $ref: '#/components/responses/RateLimited' }
   /d/{downloadToken}/file:
     get:
       summary: Atomically claim and stream a file download
@@ -104,6 +133,8 @@ paths:
               schema: { type: string, format: binary }
         '404': { description: Invalid token }
         '410': { description: File cannot be downloaded }
+        '403': { description: Password unlock required }
+        '429': { $ref: '#/components/responses/RateLimited' }
     head:
       summary: Validate download without consuming a count
       operationId: headDownloadFile
@@ -113,6 +144,8 @@ paths:
         '200': { description: Download metadata headers }
         '404': { description: Invalid token }
         '410': { description: File cannot be downloaded }
+        '403': { description: Password unlock required }
+        '429': { $ref: '#/components/responses/RateLimited' }
 components:
   securitySchemes:
     ManagementToken:
@@ -143,6 +176,7 @@ components:
         expires_at: { type: string, format: date-time }
         max_downloads: { type: [integer, 'null'], enum: [1, null] }
         download_count: { type: integer, minimum: 0 }
+        password_protected: { type: boolean }
         status: { type: string, enum: [active, expired, deleted] }
     CreateUploadData:
       allOf:

@@ -82,6 +82,12 @@ dd { margin: 0; overflow-wrap: anywhere; text-align: right; font-weight: 700; }
 .button:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(14, 100, 169, .32); }
 .button:focus-visible, .brand:focus-visible { outline: 3px solid #8ce4de; outline-offset: 4px; }
 .note { margin: 22px 0 0; color: #b8cfdb; font-size: .9rem; line-height: 1.6; }
+.unlock-form { margin-top: 24px; text-align: left; }
+.unlock-form label { display: block; margin-bottom: 8px; font-weight: 700; }
+.unlock-form input { width: 100%; min-height: 48px; border: 1px solid rgba(255,255,255,.35); border-radius: 14px; padding: 12px; background: rgba(12,24,36,.55); color: #fff; font: inherit; }
+.unlock-form input:focus-visible { outline: 3px solid #8ce4de; outline-offset: 3px; }
+.unlock-form .button { width: 100%; border: 0; font: inherit; font-weight: 800; cursor: pointer; }
+.form-error { color: #ffbcb3; font-size: .9rem; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .card { background: #26333f; }
 }

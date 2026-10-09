@@ -19,6 +19,7 @@ final class UploadResponseData
             'expires_at' => $upload->expires_at->utc()->toIso8601String(),
             'max_downloads' => $upload->max_downloads,
             'download_count' => $upload->download_count,
+            'password_protected' => $upload->password_hash !== null,
             'status' => $upload->effectiveStatus(),
         ];
 

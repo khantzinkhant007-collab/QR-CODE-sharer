@@ -4,6 +4,12 @@ type Locale = 'en' | 'ja'
 type Values = Record<string, string | number>
 
 const en: Record<string, string> = {
+  'file.password': 'Download password (optional)',
+  'file.passwordHint': 'Leave blank for anyone with the link. Otherwise use a long passphrase (at least 12 characters) and share it separately. ScanSend cannot recover it.',
+  'upload.password_not_supported': 'The server has not enabled password protection yet. The unprotected upload was deleted. Update the backend before retrying.',
+  'upload.password_cleanup_failed': 'The server did not confirm password protection and cleanup failed. Do not share this upload; contact the server operator to remove it.',
+  'upload.password_invalid': 'Use at least 12 characters and no more than 72 UTF-8 bytes. Japanese characters usually use 3 bytes each.',
+  'share.passwordProtected': 'Password protected. Share the password separately from this QR code or link. ScanSend does not save a recoverable copy.',
   'nav.home': 'Send', 'nav.history': 'History', 'nav.privacy': 'Privacy', 'nav.help': 'Help',
   'brand.tagline': 'private QR transfer', 'status.online': 'Online', 'status.offline': 'Offline · uploads need internet',
   'common.skip': 'Skip to content', 'common.primaryNav': 'Primary navigation', 'common.language': 'Change language', 'common.theme': 'Toggle color theme',
@@ -53,6 +59,12 @@ const en: Record<string, string> = {
 }
 
 const ja: Record<string, string> = {
+  'upload.password_not_supported': 'サーバーがまだパスワード保護に対応していません。保護されていないアップロードは削除しました。サーバー更新後に再試行してください。',
+  'upload.password_cleanup_failed': 'パスワード保護を確認できず、削除にも失敗しました。このアップロードは共有せず、サーバー管理者に削除を依頼してください。',
+  'file.password': 'ダウンロード用パスワード（任意）',
+  'file.passwordHint': '空欄の場合、リンクを知っている人がダウンロードできます。設定する場合は12文字以上、UTF-8で72バイト以内にし、リンクとは別に伝えてください。パスワードは復元できません。',
+  'upload.password_invalid': '12文字以上、UTF-8で72バイト以内にしてください。日本語は通常1文字3バイトです。',
+  'share.passwordProtected': 'パスワードで保護されています。QRコードやリンクとは別にパスワードを伝えてください。ScanSendではパスワードを復元できません。',
   'nav.home': '送信', 'nav.history': '履歴', 'nav.privacy': 'プライバシー', 'nav.help': 'ヘルプ',
   'brand.tagline': '安全なQR転送', 'status.online': 'オンライン', 'status.offline': 'オフライン・アップロードには通信が必要です',
   'common.skip': '本文へ移動', 'common.primaryNav': 'メインナビゲーション', 'common.language': '言語を変更', 'common.theme': '配色を変更',

@@ -18,7 +18,7 @@
         <div><dt>Size</dt><dd>{{ Number::fileSize($upload->size_bytes, precision: 1) }}</dd></div>
         <div><dt>Available until</dt><dd>{{ $upload->expires_at->utc()->format('Y-m-d H:i') }} UTC</dd></div>
     </dl>
-    <a class="button" href="{{ route('downloads.file', ['downloadToken' => request()->route('downloadToken')]) }}">Download file</a>
+    <a class="button" href="{{ route('downloads.file', ['downloadToken' => request()->route('downloadToken')], false) }}">Download file</a>
     <p class="note">No app or account is required. The file is delivered as a download and is not previewed here.</p>
 </main>
 </body>
