@@ -2,10 +2,28 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
+import { loadEnv, type Plugin } from 'vite'
+import { resolveApiBaseUrl } from './src/lib/apiBaseUrl.ts'
+
+function apiContentSecurityPolicy(): Plugin {
+  let apiOrigin = ''
+  return {
+    name: 'scansend-api-content-security-policy',
+    configResolved(config) {
+      const env = loadEnv(config.mode, config.envDir, 'VITE_')
+      const apiBaseUrl = resolveApiBaseUrl(env.VITE_API_BASE_URL, config.command === 'build')
+      apiOrigin = apiBaseUrl ? new URL(apiBaseUrl).origin : ''
+    },
+    transformIndexHtml(html) {
+      return html.replace('__SCANSEND_API_ORIGIN__', apiOrigin)
+    },
+  }
+}
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    apiContentSecurityPolicy(),
     react(),
     tailwindcss(),
     VitePWA({

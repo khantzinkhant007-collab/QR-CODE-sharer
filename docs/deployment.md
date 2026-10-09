@@ -1,6 +1,6 @@
 # Deployment guide
 
-This repository does not deploy automatically. CI verifies code only and requires no production credentials.
+CI verifies code only and requires no production credentials. Vercel and Railway deploy separately when their services are connected to this GitHub repository; a Git push alone does not start an unconnected or suspended Railway service.
 
 ## Recommended topology
 
@@ -41,6 +41,33 @@ Railway can deploy the Laravel application from this monorepo with Railpack:
 5. Generate a public Railway domain for the Laravel service.
 6. Set `APP_URL` and `PUBLIC_DOWNLOAD_BASE_URL` to that domain and `FRONTEND_URL=https://qr-code-sharer.vercel.app`.
 7. Set Vercel's `VITE_API_BASE_URL` to the same Railway domain and redeploy the frontend.
+
+### This project's Vercel + Railway connection
+
+Keep file uploads going **directly to Railway**, not through a Vercel Function or an external rewrite. The frontend is static on Vercel; Laravel handles upload, download, password verification and deletion on Railway.
+
+Railway's `scansend-api` service must use this repository's `main` branch, root directory `/backend` and config-as-code path `/backend/railway.json`. Keep the existing MySQL service and private S3-compatible storage credentials; do not replace them with the container's temporary filesystem. Do not regenerate `APP_KEY` on redeploy.
+
+For the existing domain, verify these **non-secret** settings:
+
+```dotenv
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://scansend-api-production.up.railway.app
+PUBLIC_DOWNLOAD_BASE_URL=https://scansend-api-production.up.railway.app
+FRONTEND_URL=https://qr-code-sharer.vercel.app
+SESSION_DRIVER=database
+SESSION_SECURE_COOKIE=true
+CACHE_STORE=database
+SCAN_STORAGE_DISK=s3
+FILESYSTEM_DISK=s3
+```
+
+In Vercel, use root directory `frontend`, build command `npm run build`, output directory `dist`, and `VITE_API_BASE_URL=https://scansend-api-production.up.railway.app`. Vercel environment variables override the checked-in `.env.production`; remove or replace any old `localhost` override, then redeploy. If Railway assigns a new domain, update both backend URL settings and Vercel's API variable. The build now generates the browser's CSP allowlist from that same variable and rejects a missing, insecure or localhost production backend.
+
+Before uploading, check `https://scansend-api-production.up.railway.app/` for `ScanSend API` and `/up` for HTTP 200. A Railway response of `404` with `Application not found` is a stopped/missing deployment, not a Laravel route error. If the CLI says `Your trial has expired`, reactivate the Railway account yourself before restarting the existing database and deploying the backend. Changing frontend code, CORS, or the QR URL cannot bypass a suspended account.
+
+After activation, deploy the backend first (the pre-deploy migration includes password support), wait for `/up`, and then redeploy Vercel. Test a small public upload from Vercel, scan the generated **Railway HTTPS** QR URL on another device, unlock and download, and check sender deletion. Old localhost links and local-browser upload history do not move to production automatically.
 
 `backend/php.ini` raises PHP's application-server limits to the documented 2 GiB maximum. Railway currently limits a single HTTP request to 15 minutes, so reliable 2 GiB support still requires direct multipart browser-to-bucket uploads for slow connections.
 

@@ -1,8 +1,9 @@
 import axios, { AxiosError, type AxiosProgressEvent } from 'axios'
 import type { UploadApiData, UploadProgress, UploadRecord, UploadStatusData } from '../types'
+import { resolveApiBaseUrl } from '../lib/apiBaseUrl'
 
 const api = axios.create({
-  baseURL: (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000').replace(/\/$/, ''),
+  baseURL: resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL, import.meta.env.PROD),
   headers: { Accept: 'application/json' },
   timeout: 0,
 })
@@ -40,7 +41,9 @@ export function mapApiError(error: unknown): string {
     if (!error.response) return navigator.onLine ? 'network_error' : 'offline'
     if (error.response.status === 413) return 'too_large'
     if (error.response.status === 429) return 'rate_limited'
+    if ([502, 503, 504].includes(error.response.status)) return 'server_unavailable'
     const responseData = error.response.data as { message?: string; errors?: Record<string, string[]> }
+    if (error.response.status === 404 && responseData?.message === 'Application not found') return 'server_unavailable'
     return responseData.errors?.file?.[0] ?? responseData.message ?? 'upload_failed'
   }
   return error instanceof Error ? error.message : 'upload_failed'

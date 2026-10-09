@@ -75,6 +75,20 @@ describe('upload client', () => {
     expect(mapApiError(tooLarge)).toBe('too_large')
   })
 
+  it.each([502, 503, 504])('explains an unavailable backend (%s)', (status) => {
+    const unavailable = new AxiosError('Unavailable', 'ERR_BAD_RESPONSE', undefined, undefined, {
+      data: {}, status, statusText: 'Unavailable', headers: {}, config: {} as never,
+    })
+    expect(mapApiError(unavailable)).toBe('server_unavailable')
+  })
+
+  it('explains a stopped Railway application without treating it as an interrupted upload', () => {
+    const unavailable = new AxiosError('Not Found', 'ERR_BAD_RESPONSE', undefined, undefined, {
+      data: { message: 'Application not found' }, status: 404, statusText: 'Not Found', headers: {}, config: {} as never,
+    })
+    expect(mapApiError(unavailable)).toBe('server_unavailable')
+  })
+
   it('deletes and rejects an upload if an old backend ignores password protection', async () => {
     apiMocks.post.mockResolvedValue({ data: { data: apiData } })
     apiMocks.delete.mockResolvedValue({ data: { data: { ...apiData, status: 'deleted' } } })
