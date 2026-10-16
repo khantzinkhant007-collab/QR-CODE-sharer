@@ -134,6 +134,7 @@ export function HomePage() {
   }
 
   return <div className="space-y-10">
+    <Link to="/events" className="glass-soft flex items-center justify-between gap-4 rounded-2xl px-5 py-4"><span><strong className="block">{t('collection.homeTitle')}</strong><span className="text-sm opacity-75">{t('collection.homeHint')}</span></span><QrCode className="shrink-0" size={24} /></Link>
     <section className="glass-hero relative overflow-hidden rounded-[2.25rem] p-3 sm:p-6">
       <div className="relative grid items-stretch gap-4 lg:grid-cols-[1.05fr_.95fr]">
         <div className="hero-copy rounded-[1.75rem] p-5 sm:p-8">

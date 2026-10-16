@@ -6,6 +6,8 @@ The receiving person needs only a normal phone camera and browser—no ScanSend 
 
 ## What is included
 
+- **Event collections:** create an empty QR before an event, let participants add/download photos and videos using the same link, and let the creator set/update the deadline, remove files or close early. See [event collections](docs/event-collections.md) for limits, security and rollout.
+
 - React 19, TypeScript, Vite 8, Tailwind CSS 4, React Router, TanStack Query, Axios, Dexie IndexedDB, `qrcode`, and `vite-plugin-pwa`.
 - Live rear-camera preview with capture/retake/confirm and `<input capture="environment">` fallback.
 - Image/video selection, object-URL preview, 2 GiB client/server application limit, four expiration choices, and one-download mode.

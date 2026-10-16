@@ -1,16 +1,30 @@
 import Dexie, { type EntityTable } from 'dexie'
-import type { UploadRecord, UploadStatus } from '../types'
+import type { CollectionRecord, UploadRecord, UploadStatus } from '../types'
 
 class ScanSendDatabase extends Dexie {
   uploads!: EntityTable<UploadRecord, 'id'>
+  collections!: EntityTable<CollectionRecord, 'token'>
 
   constructor() {
     super('scansend')
     this.version(1).stores({ uploads: 'id, createdAt, expiresAt, localStatus' })
+    this.version(2).stores({ uploads: 'id, createdAt, expiresAt, localStatus', collections: 'token, createdAt, expiresAt' })
   }
 }
 
 export const historyDb = new ScanSendDatabase()
+
+export async function saveCollection(record: CollectionRecord): Promise<void> {
+  await historyDb.collections.put(record)
+}
+
+export async function getCollection(token: string): Promise<CollectionRecord | undefined> {
+  return historyDb.collections.get(token)
+}
+
+export async function listCollections(): Promise<CollectionRecord[]> {
+  return historyDb.collections.orderBy('createdAt').reverse().toArray()
+}
 
 export async function saveUpload(record: UploadRecord): Promise<void> {
   await historyDb.uploads.put(record)

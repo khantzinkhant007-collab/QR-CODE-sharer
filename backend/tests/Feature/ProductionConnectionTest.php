@@ -10,7 +10,7 @@ class ProductionConnectionTest extends TestCase
     {
         config(['cors.allowed_origins' => ['https://qr-code-sharer.vercel.app']]);
 
-        foreach (['POST', 'DELETE'] as $method) {
+        foreach (['POST', 'PATCH', 'DELETE'] as $method) {
             $this->options('/api/v1/uploads', [], [
                 'Origin' => 'https://qr-code-sharer.vercel.app',
                 'Access-Control-Request-Method' => $method,

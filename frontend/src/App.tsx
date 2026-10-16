@@ -8,6 +8,8 @@ const HelpPage = lazy(() => import('./pages/HelpPage').then((module) => ({ defau
 const HistoryPage = lazy(() => import('./pages/HistoryPage').then((module) => ({ default: module.HistoryPage })))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then((module) => ({ default: module.PrivacyPage })))
 const SharePage = lazy(() => import('./pages/SharePage').then((module) => ({ default: module.SharePage })))
+const CollectionsPage = lazy(() => import('./pages/CollectionsPage').then((module) => ({ default: module.CollectionsPage })))
+const EventCollectionPage = lazy(() => import('./pages/EventCollectionPage').then((module) => ({ default: module.EventCollectionPage })))
 
 function Shell() {
   return <Layout><Suspense fallback={<div className="skeleton min-h-[420px]" />}><Outlet /></Suspense></Layout>
@@ -19,6 +21,8 @@ const router = createBrowserRouter([
     errorElement: <Layout><ErrorPage /></Layout>,
     children: [
       { path: '/', element: <HomePage /> },
+      { path: '/events', element: <CollectionsPage /> },
+      { path: '/events/:collectionToken', element: <EventCollectionPage /> },
       { path: '/share/:uploadId', element: <SharePage /> },
       { path: '/history', element: <HistoryPage /> },
       { path: '/privacy', element: <PrivacyPage /> },

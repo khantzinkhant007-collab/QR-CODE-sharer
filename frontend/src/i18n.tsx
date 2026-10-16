@@ -1,9 +1,11 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { collectionEn, collectionJa } from './collectionMessages'
 
 type Locale = 'en' | 'ja'
 type Values = Record<string, string | number>
 
 const en: Record<string, string> = {
+  ...collectionEn,
   'file.password': 'Download password (optional)',
   'file.passwordHint': 'Leave blank for anyone with the link. Otherwise use a long passphrase (at least 12 characters) and share it separately. ScanSend cannot recover it.',
   'upload.password_not_supported': 'The server has not enabled password protection yet. The unprotected upload was deleted. Update the backend before retrying.',
@@ -60,6 +62,7 @@ const en: Record<string, string> = {
 }
 
 const ja: Record<string, string> = {
+  ...collectionJa,
   'upload.password_not_supported': 'サーバーがまだパスワード保護に対応していません。保護されていないアップロードは削除しました。サーバー更新後に再試行してください。',
   'upload.password_cleanup_failed': 'パスワード保護を確認できず、削除にも失敗しました。このアップロードは共有せず、サーバー管理者に削除を依頼してください。',
   'file.password': 'ダウンロード用パスワード（任意）',

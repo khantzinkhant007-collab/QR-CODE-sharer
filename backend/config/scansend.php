@@ -27,4 +27,8 @@ return [
     'upload_rate_limit_per_minute' => (int) env('UPLOAD_RATE_LIMIT_PER_MINUTE', 10),
     'download_rate_limit_per_minute' => (int) env('DOWNLOAD_RATE_LIMIT_PER_MINUTE', 120),
     'purge_batch_size' => (int) env('UPLOAD_PURGE_BATCH_SIZE', 100),
+    'collection_max_days' => (int) env('COLLECTION_MAX_DAYS', 30),
+    'collection_max_files' => (int) env('COLLECTION_MAX_FILES', 200),
+    'collection_max_mb' => (int) env('COLLECTION_MAX_MB', 2048),
+    'collection_preview_max_mb' => (int) env('COLLECTION_PREVIEW_MAX_MB', 2),
 ];

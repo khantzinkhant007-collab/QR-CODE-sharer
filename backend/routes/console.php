@@ -11,3 +11,5 @@ Artisan::command('inspire', function () {
 Schedule::command('uploads:purge-expired')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
+
+Schedule::command('collections:purge-expired')->everyFifteenMinutes()->withoutOverlapping();

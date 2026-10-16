@@ -1,4 +1,4 @@
-import { CircleHelp, Clock3, Home, Languages, Moon, QrCode, ShieldCheck, Sun } from 'lucide-react'
+import { CircleHelp, Clock3, Home, Languages, Moon, QrCode, ShieldCheck, Sun, UsersRound } from 'lucide-react'
 import { useLayoutEffect, useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
@@ -7,6 +7,7 @@ import { PwaUpdatePrompt } from './PwaUpdatePrompt'
 
 const navigation = [
   { to: '/', key: 'nav.home', icon: Home },
+  { to: '/events', key: 'nav.events', icon: UsersRound },
   { to: '/history', key: 'nav.history', icon: Clock3 },
   { to: '/privacy', key: 'nav.privacy', icon: ShieldCheck },
   { to: '/help', key: 'nav.help', icon: CircleHelp },
@@ -46,7 +47,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main id="main" className="mx-auto max-w-6xl px-4 pb-28 pt-7 sm:px-6 md:pb-12">{children}</main>
-      <nav className="glass-panel fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-[1.5rem] p-1.5 md:hidden" aria-label={t('common.primaryNav')}>
+      <nav className="glass-panel fixed inset-x-3 bottom-3 z-40 grid grid-cols-5 rounded-[1.5rem] p-1.5 md:hidden" aria-label={t('common.primaryNav')}>
         {navigation.map(({ to, key, icon: Icon }) => <NavLink key={to} to={to} className={({ isActive }) => `flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-bold ${isActive ? 'glass-inset text-teal-900 dark:text-teal-100' : 'text-slate-600 dark:text-slate-300'}`}><Icon size={19} />{t(key)}</NavLink>)}
       </nav>
       <PwaUpdatePrompt />

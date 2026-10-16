@@ -50,3 +50,42 @@ export interface UploadProgress {
   etaSeconds: number | null
 }
 
+export interface CollectionRecord {
+  id: string
+  token: string
+  title: string
+  shareUrl: string
+  managementToken: string
+  expiresAt: string
+  createdAt: string
+}
+
+export interface CollectionData {
+  id: string
+  title: string
+  description: string | null
+  expires_at: string
+  status: 'active' | 'expired' | 'closed'
+  file_count: number
+  total_bytes: number
+  max_files: number
+  max_total_bytes: number
+  max_file_bytes: number
+  share_url: string
+}
+
+export interface CollectionFileData {
+  id: string
+  original_name: string
+  mime_type: string
+  size_bytes: number
+  created_at: string
+  download_url: string
+  preview_url: string | null
+}
+
+export interface CollectionResponse {
+  data: CollectionData
+  files: { data: CollectionFileData[]; current_page: number; last_page: number; total: number }
+}
+

@@ -31,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->ip() ?: 'unknown');
         });
 
+        RateLimiter::for('collection-creation', fn (Request $request): Limit => Limit::perHour(10)->by($request->ip() ?: 'unknown'));
+
         RateLimiter::for('downloads', function (Request $request): Limit {
             return Limit::perMinute((int) config('scansend.download_rate_limit_per_minute'))
                 ->by($request->ip() ?: 'unknown');

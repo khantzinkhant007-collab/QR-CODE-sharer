@@ -15,7 +15,7 @@ function apiContentSecurityPolicy(): Plugin {
       apiOrigin = apiBaseUrl ? new URL(apiBaseUrl).origin : ''
     },
     transformIndexHtml(html) {
-      return html.replace('__SCANSEND_API_ORIGIN__', apiOrigin)
+      return html.replaceAll('__SCANSEND_API_ORIGIN__', apiOrigin)
     },
   }
 }
