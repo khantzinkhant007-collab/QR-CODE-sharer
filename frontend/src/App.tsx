@@ -1,32 +1,28 @@
-import { lazy, Suspense } from 'react'
 import { Outlet, createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ErrorPage } from './pages/ErrorPage'
 
-const HomePage = lazy(() => import('./pages/HomePage').then((module) => ({ default: module.HomePage })))
-const HelpPage = lazy(() => import('./pages/HelpPage').then((module) => ({ default: module.HelpPage })))
-const HistoryPage = lazy(() => import('./pages/HistoryPage').then((module) => ({ default: module.HistoryPage })))
-const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then((module) => ({ default: module.PrivacyPage })))
-const SharePage = lazy(() => import('./pages/SharePage').then((module) => ({ default: module.SharePage })))
-const CollectionsPage = lazy(() => import('./pages/CollectionsPage').then((module) => ({ default: module.CollectionsPage })))
-const EventCollectionPage = lazy(() => import('./pages/EventCollectionPage').then((module) => ({ default: module.EventCollectionPage })))
-
 function Shell() {
-  return <Layout><Suspense fallback={<div className="skeleton min-h-[420px]" />}><Outlet /></Suspense></Layout>
+  return <Layout><Outlet /></Layout>
+}
+
+function InitialLoadingShell() {
+  return <Layout><div className="skeleton min-h-[420px]" aria-busy="true" /></Layout>
 }
 
 const router = createBrowserRouter([
   {
     element: <Shell />,
+    HydrateFallback: InitialLoadingShell,
     errorElement: <Layout><ErrorPage /></Layout>,
     children: [
-      { path: '/', element: <HomePage /> },
-      { path: '/events', element: <CollectionsPage /> },
-      { path: '/events/:collectionToken', element: <EventCollectionPage /> },
-      { path: '/share/:uploadId', element: <SharePage /> },
-      { path: '/history', element: <HistoryPage /> },
-      { path: '/privacy', element: <PrivacyPage /> },
-      { path: '/help', element: <HelpPage /> },
+      { path: '/', lazy: () => import('./pages/HomePage').then((module) => ({ Component: module.HomePage })) },
+      { path: '/events', lazy: () => import('./pages/CollectionsPage').then((module) => ({ Component: module.CollectionsPage })) },
+      { path: '/events/:collectionToken', lazy: () => import('./pages/EventCollectionPage').then((module) => ({ Component: module.EventCollectionPage })) },
+      { path: '/share/:uploadId', lazy: () => import('./pages/SharePage').then((module) => ({ Component: module.SharePage })) },
+      { path: '/history', lazy: () => import('./pages/HistoryPage').then((module) => ({ Component: module.HistoryPage })) },
+      { path: '/privacy', lazy: () => import('./pages/PrivacyPage').then((module) => ({ Component: module.PrivacyPage })) },
+      { path: '/help', lazy: () => import('./pages/HelpPage').then((module) => ({ Component: module.HelpPage })) },
       { path: '*', element: <ErrorPage /> },
     ],
   },
