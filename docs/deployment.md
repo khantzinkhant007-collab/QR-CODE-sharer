@@ -1,5 +1,7 @@
 # Deployment guide
 
+The existing AWS `QR_SHARER` EC2 instance now hosts a same-origin HTTPS deployment. See [EC2 deployment and operations](../deploy/ec2/README.md) for its configuration, redeployment, verification, and recovery details.
+
 CI verifies code only and requires no production credentials. Vercel and Railway deploy separately when their services are connected to this GitHub repository; a Git push alone does not start an unconnected or suspended Railway service.
 
 ## Recommended topology

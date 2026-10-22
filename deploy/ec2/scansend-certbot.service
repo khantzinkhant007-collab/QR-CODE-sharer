@@ -1,0 +1,11 @@
+[Unit]
+Description=Renew ScanSend short-lived IP certificate
+Wants=network-online.target nginx.service
+After=network-online.target nginx.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/scansend-certbot/bin/certbot renew --quiet --no-random-sleep-on-renew --deploy-hook "/usr/bin/systemctl reload nginx"
+
+[Install]
+WantedBy=multi-user.target

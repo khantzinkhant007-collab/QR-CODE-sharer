@@ -1,0 +1,4 @@
+# Keep Linux deployment files runnable when this repository is checked out on Windows.
+deploy/ec2/*.sh text eol=lf
+deploy/ec2/*.service text eol=lf
+deploy/ec2/nginx.conf text eol=lf
