@@ -247,6 +247,15 @@ h1, h2, h3, strong { text-wrap: pretty; }
   .event-invitation { padding: 18px; }
   .status-pill { display: none; }
 }
+.confirm-dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; padding: 28px; }
+.confirm-dialog[open] { animation: confirm-dialog-enter .24s cubic-bezier(.16, 1, .3, 1) both; }
+.confirm-dialog::backdrop { background: rgba(4, 12, 24, .54); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: confirm-backdrop-enter .2s ease-out both; }
+.confirm-dialog-icon { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 18px; border: 1px solid rgba(211, 68, 90, .17); border-radius: 18px; background: rgba(255, 226, 232, .65); color: #b52e43; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6); }
+.dark .confirm-dialog-icon { border-color: rgba(255, 186, 197, .22); background: rgba(168, 65, 89, .15); color: #ffc2ce; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12); }
+.confirm-dialog-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.confirm-dialog-actions > button { flex: 1 1 140px; min-width: 0; }
+@keyframes confirm-dialog-enter { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes confirm-backdrop-enter { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-contrast: more) {
   :root { --glass-fill: rgba(255, 255, 255, .94); --muted: #344459; --glass-edge: #b7c7db; }
   :root.dark { --glass-fill: rgba(27, 42, 63, .96); --muted: #d2def1; --glass-edge: #738ba9; }
@@ -264,9 +273,11 @@ h1, h2, h3, strong { text-wrap: pretty; }
   .glass-panel, .glass-hero, .glass-header, .liquid-dock, .empty-state { -webkit-backdrop-filter: none; backdrop-filter: none; }
   .glass-soft, .glass-inset, .metric, .secondary-button, .privacy-badge { background: #edf3fc; }
   .dark .glass-soft, .dark .glass-inset, .dark .metric, .dark .secondary-button, .dark .privacy-badge { background: #2a3d59; }
+  .confirm-dialog::backdrop { background: rgba(4, 12, 24, .9); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  .confirm-dialog[open], .confirm-dialog::backdrop { animation: none; }
 }
 

@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ExternalLink, FileImage, Film, History, RefreshCw, Trash2, Unlink } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { deleteRemoteUpload, fetchUploadStatus } from '../api/uploadClient'
 import { StatusBadge } from '../components/StatusBadge'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { useI18n } from '../i18n'
 import { formatBytes } from '../lib/files'
@@ -14,6 +16,7 @@ export function HistoryPage() {
   const online = useOnlineStatus()
   const queryClient = useQueryClient()
   const historyQuery = useQuery({ queryKey: ['history'], queryFn: listUploads })
+  const [confirmation, setConfirmation] = useState<{ record: UploadRecord; action: 'remote' | 'local' } | null>(null)
 
   const refreshMutation = useMutation({
     mutationFn: async (record: UploadRecord) => fetchUploadStatus(record.id, record.managementToken),
@@ -28,17 +31,30 @@ export function HistoryPage() {
     onSuccess: async (_, record) => {
       await setUploadStatus(record.id, 'deleted')
       await queryClient.invalidateQueries({ queryKey: ['history'] })
+      setConfirmation(null)
     },
   })
 
-  const removeLocal = async (record: UploadRecord) => {
-    if (!window.confirm(t('history.confirmLocal'))) return
-    await removeLocalUpload(record.id)
-    await queryClient.invalidateQueries({ queryKey: ['history'] })
+  const removeLocalMutation = useMutation({
+    mutationFn: (record: UploadRecord) => removeLocalUpload(record.id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['history'] })
+      setConfirmation(null)
+    },
+  })
+
+  const requestConfirmation = (record: UploadRecord, action: 'remote' | 'local') => {
+    deleteMutation.reset()
+    removeLocalMutation.reset()
+    setConfirmation({ record, action })
   }
 
-  const deleteEverywhere = (record: UploadRecord) => {
-    if (window.confirm(t('history.confirmDelete'))) deleteMutation.mutate(record)
+  const busy = deleteMutation.isPending || removeLocalMutation.isPending
+  const confirmRemoval = () => {
+    if (!confirmation || busy) return
+    if (confirmation.action === 'remote') {
+      if (online) deleteMutation.mutate(confirmation.record)
+    } else removeLocalMutation.mutate(confirmation.record)
   }
 
   const uploads = historyQuery.data ?? []
@@ -52,9 +68,18 @@ export function HistoryPage() {
       return <article key={record.id} className="glass-panel rounded-3xl p-5">
         <div className="flex items-start gap-4"><span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-200">{record.mimeType.startsWith('video/') ? <Film /> : <FileImage />}</span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-2"><h2 className="truncate font-black">{record.originalName}</h2><StatusBadge status={status} /></div><p className="mt-1 text-sm text-slate-500">{formatBytes(record.sizeBytes)} · {new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(record.createdAt))}</p></div></div>
         <dl className="glass-inset mt-5 grid grid-cols-2 gap-3 rounded-2xl p-4 text-sm"><div><dt className="text-slate-500">{t('share.downloaded')}</dt><dd className="mt-1 text-lg font-black">{record.downloadCount}</dd></div><div><dt className="text-slate-500">{t('share.allowed')}</dt><dd className="mt-1 text-lg font-black">{record.maxDownloads ?? '∞'}</dd></div></dl>
-        <div className="mt-5 flex flex-wrap gap-2">{active && <Link to={`/share/${record.id}`} className="secondary-button"><ExternalLink size={17} />{t('history.open')}</Link>}{active && online && <button type="button" className="secondary-button" onClick={() => refreshMutation.mutate(record)} disabled={refreshMutation.isPending}><RefreshCw size={17} className={refreshMutation.isPending ? 'animate-spin' : ''} />{t('common.refresh')}</button>}{status !== 'deleted' && online && <button type="button" className="danger-button" onClick={() => deleteEverywhere(record)} disabled={deleteMutation.isPending}><Trash2 size={17} />{t('history.deleteRemote')}</button>}<button type="button" className="ghost-button" onClick={() => void removeLocal(record)}>{t('history.removeLocal')}</button></div>
+        <div className="mt-5 flex flex-wrap gap-2">{active && <Link to={`/share/${record.id}`} className="secondary-button"><ExternalLink size={17} />{t('history.open')}</Link>}{active && online && <button type="button" className="secondary-button" onClick={() => refreshMutation.mutate(record)} disabled={refreshMutation.isPending}><RefreshCw size={17} className={refreshMutation.isPending ? 'animate-spin' : ''} />{t('common.refresh')}</button>}{status !== 'deleted' && online && <button type="button" className="danger-button" onClick={() => requestConfirmation(record, 'remote')} disabled={busy}><Trash2 size={17} />{t('history.deleteRemote')}</button>}<button type="button" className="ghost-button" onClick={() => requestConfirmation(record, 'local')} disabled={busy}>{t('history.removeLocal')}</button></div>
       </article>
     })}</div>}
-    {deleteMutation.isError && <p role="alert" className="error-box">{t('history.failedDelete')}</p>}
+    {confirmation && <ConfirmDialog
+      title={t(confirmation.action === 'remote' ? 'history.deleteTitle' : 'history.removeTitle')}
+      message={t(confirmation.action === 'remote' ? 'history.confirmDelete' : 'history.confirmLocal')}
+      fileName={confirmation.record.originalName}
+      confirmLabel={t(confirmation.action === 'remote' ? 'history.deleteRemote' : 'history.removeLocal')}
+      busy={busy}
+      error={deleteMutation.isError ? t('history.failedDelete') : removeLocalMutation.isError ? t('history.failedLocal') : confirmation.action === 'remote' && !online ? t('history.offlineDelete') : null}
+      onCancel={() => setConfirmation(null)}
+      onConfirm={confirmRemoval}
+    />}
   </div>
 }
