@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowUpRight, Camera, CheckCircle2, Clock3, CloudUpload, ImagePlus, LockKeyhole, QrCode, RefreshCw, ShieldCheck, UsersRound, WifiOff } from 'lucide-react'
+import { ArrowUpRight, Camera, CheckCircle2, Clock3, CloudUpload, Paperclip, LockKeyhole, QrCode, RefreshCw, ShieldCheck, UsersRound, WifiOff } from 'lucide-react'
 import { useEffect, useRef, useState, type DragEvent } from 'react'
 import { Link, useBlocker, useNavigate } from 'react-router-dom'
 import { uploadFile, UploadCancelledError } from '../api/uploadClient'
@@ -8,7 +8,7 @@ import { FilePreview } from '../components/FilePreview'
 import { StatusBadge } from '../components/StatusBadge'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { useI18n } from '../i18n'
-import { formatBytes, validateSelectedFile } from '../lib/files'
+import { FILE_ACCEPT, formatBytes, validateSelectedFile } from '../lib/files'
 import { effectiveUploadStatus, listUploads, saveUpload } from '../lib/history'
 import type { UploadProgress } from '../types'
 
@@ -145,12 +145,12 @@ export function HomePage() {
         <span className="upload-symbol" aria-hidden="true"><CloudUpload size={37} strokeWidth={1.3} /></span>
         <div><p className="upload-label">{t('home.uploadTitle')}</p><p className="upload-meta">{t('home.max', { max: MAX_MB })}</p></div>
         <div className="upload-buttons">
-          <button type="button" className="primary-button" onClick={() => inputRef.current?.click()} disabled={uploading}><ImagePlus size={18} strokeWidth={1.8} />{t('home.choose')}</button>
+          <button type="button" className="primary-button" onClick={() => inputRef.current?.click()} disabled={uploading}><Paperclip size={18} strokeWidth={1.8} />{t('home.choose')}</button>
           <button type="button" className="secondary-button" onClick={() => setCameraOpen(true)} disabled={uploading}><Camera size={18} strokeWidth={1.8} />{t('home.takePhoto')}</button>
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-300">{t('home.drop')}</p>
       </div>
-      <input ref={inputRef} className="sr-only" type="file" accept="image/*,video/*,.heic,.heif,.mov,.webm" onChange={(event) => { chooseFile(event.target.files?.[0]); event.target.value = '' }} aria-label={t('home.choose')} />
+      <input ref={inputRef} className="sr-only" type="file" accept={FILE_ACCEPT} onChange={(event) => { chooseFile(event.target.files?.[0]); event.target.value = '' }} aria-label={t('home.choose')} />
     </section>
     <Link to="/events" className="glass-soft event-invitation"><span className="invitation-icon" aria-hidden="true"><UsersRound size={20} strokeWidth={1.7} /></span><span className="min-w-0 flex-1"><strong>{t('collection.homeTitle')}</strong><small>{t('collection.homeHint')}</small></span><ArrowUpRight className="shrink-0 text-teal-700 dark:text-teal-300" size={19} /></Link>
 

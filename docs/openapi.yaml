@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: ScanSend API
   version: 1.0.0
-  description: Private expiring image/video upload and sender management API.
+  description: Private expiring media/document/audio/archive upload and sender management API. Direct text/link QRs are generated client-side and have no API endpoint.
 servers:
   - url: http://localhost:8000
     description: Local development

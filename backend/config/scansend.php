@@ -10,6 +10,20 @@ return [
     'max_upload_mb' => (int) env('UPLOAD_MAX_MB', 2048),
     'max_upload_kb' => (int) env('UPLOAD_MAX_MB', 2048) * 1024,
     'allowed_mime_types' => $allowedMimeTypes,
+    // Single-file attachments only; collaborative event galleries keep the media allowlist above.
+    'attachment_mime_types' => [
+        'application/pdf', 'text/plain', 'text/csv', 'application/json', 'application/rtf', 'text/rtf',
+        'application/msword', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.oasis.opendocument.text', 'application/vnd.oasis.opendocument.spreadsheet',
+        'application/vnd.oasis.opendocument.presentation',
+        'application/zip', 'application/x-zip-compressed', 'application/x-7z-compressed',
+        'application/x-rar', 'application/vnd.rar', 'application/gzip', 'application/x-gzip', 'application/x-tar',
+        'audio/mpeg', 'audio/mp4', 'audio/x-m4a', 'audio/wav', 'audio/x-wav', 'audio/ogg',
+        'application/ogg', 'audio/flac', 'audio/x-flac', 'audio/aac', 'audio/x-aac',
+    ],
     'extension_by_mime' => [
         'image/jpeg' => 'jpg',
         'image/png' => 'png',

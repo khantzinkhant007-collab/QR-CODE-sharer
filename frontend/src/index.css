@@ -185,7 +185,7 @@ h1, h2, h3, strong { text-wrap: pretty; }
   from { opacity: 0; transform: translateY(20px) scale(.99); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
-.liquid-dock { position: fixed; isolation: isolate; z-index: 40; inset-inline: 12px; bottom: max(12px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; width: min(calc(100% - 24px), 430px); margin-inline: auto; padding: 7px; border-radius: 999px; }
+.liquid-dock { position: fixed; isolation: isolate; z-index: 40; inset-inline: 12px; bottom: max(12px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; width: min(calc(100% - 24px), 500px); margin-inline: auto; padding: 7px; border-radius: 999px; }
 .liquid-dock .nav-item { min-width: 0; min-height: 53px; gap: 4px; flex-direction: column; padding: 6px 2px; font-size: 10px; }
 .home-intro { display: grid; align-items: center; gap: 36px; padding: 26px 0 14px; }
 .home-heading { max-width: 600px; margin-top: 18px; font-size: clamp(2.6rem, 5.3vw, 4.25rem); line-height: 1.04; letter-spacing: -.065em; font-weight: 650; text-wrap: balance; }
@@ -228,12 +228,12 @@ h1, h2, h3, strong { text-wrap: pretty; }
 .dark .glass-error, .dark .error-box { border-color: rgba(253, 157, 176, .25); background: rgba(100, 32, 52, .8); color: #ffdae3; }
 .dark .danger-button, .dark .danger-icon { border-color: rgba(255, 186, 197, .22); background: rgba(168, 65, 89, .15); color: #ffc2ce; }
 .dark .danger-button:hover, .dark .danger-icon:hover { background: rgba(168, 65, 89, .26); }
-@media (min-width: 900px) {
+@media (min-width: 1100px) {
   .desktop-navigation { display: flex; }
   .liquid-dock { display: none; }
   .app-main { padding-bottom: 64px; }
-  .home-intro { grid-template-columns: 1fr 1fr; gap: 56px; padding-block: 22px; }
 }
+@media (min-width: 900px) { .home-intro { grid-template-columns: 1fr 1fr; gap: 56px; padding-block: 22px; } }
 @media (max-width: 599px) {
   .app-header { padding: 10px 12px 0; }
   .header-inner { min-height: 62px; gap: 8px; padding: 6px 8px 6px 14px; }
@@ -247,6 +247,9 @@ h1, h2, h3, strong { text-wrap: pretty; }
   .event-invitation { padding: 18px; }
   .status-pill { display: none; }
 }
+.liquid-dock .nav-item { text-align: center; line-break: strict; }
+.qr-kind > button { padding-inline: 12px; gap: 6px; }
+:lang(ja) .qr-heading { word-break: auto-phrase; }
 .confirm-dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; padding: 28px; }
 .confirm-dialog[open] { animation: confirm-dialog-enter .24s cubic-bezier(.16, 1, .3, 1) both; }
 .confirm-dialog::backdrop { background: rgba(4, 12, 24, .54); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: confirm-backdrop-enter .2s ease-out both; }

@@ -11,6 +11,19 @@ describe('file selection and preview helpers', () => {
     expect(validateSelectedFile(new File(['heic'], 'photo.HEIC', { type: '' }), 100)).toBeNull()
   })
 
+  it.each(['handout.pdf', 'notes.txt', 'data.csv', 'report.docx', 'budget.xlsx', 'slides.pptx', 'files.zip', 'recording.mp3'])('accepts common attachments even without a browser MIME: %s', (name) => {
+    expect(validateSelectedFile(new File(['attachment'], name), 100)).toBeNull()
+  })
+
+  it.each(['program.exe', 'invoice.php.jpg', 'shortcut.url', 'page.svg', 'macro.docm', 'script.js', 'script.ps1'])('rejects active files even with a misleading media MIME: %s', (name) => {
+    expect(validateSelectedFile(new File(['x'], name, { type: 'image/jpeg' }), 100)).toBe('unsupported_type')
+  })
+
+  it('keeps collaborative event galleries media-only', () => {
+    expect(validateSelectedFile(new File(['pdf'], 'handout.pdf', { type: 'application/pdf' }), 100, true)).toBe('unsupported_type')
+    expect(validateSelectedFile(new File(['jpg'], 'photo.jpg', { type: 'image/jpeg' }), 100, true)).toBeNull()
+  })
+
   it('rejects unsupported and oversized files before the API', () => {
     expect(validateSelectedFile(new File(['x'], 'page.html', { type: 'text/html' }), 100)).toBe('unsupported_type')
     expect(validateSelectedFile(new File(['1234'], 'photo.jpg', { type: 'image/jpeg' }), 3)).toBe('too_large')

@@ -1,11 +1,13 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
 import { collectionEn, collectionJa } from './collectionMessages'
+import { qrEn, qrJa } from './qrMessages'
 
 type Locale = 'en' | 'ja'
 type Values = Record<string, string | number>
 
 const en: Record<string, string> = {
-  'home.uploadTitle': 'A photo. A video. A moment.',
+  ...qrEn,
+  'home.uploadTitle': 'Photos, documents, and more.',
   ...collectionEn,
   'file.password': 'Download password (optional)',
   'file.passwordHint': 'Leave blank for anyone with the link. Otherwise use a long passphrase (at least 12 characters) and share it separately. ScanSend cannot recover it.',
@@ -18,16 +20,16 @@ const en: Record<string, string> = {
   'common.skip': 'Skip to content', 'common.primaryNav': 'Primary navigation', 'common.language': 'Change language', 'common.theme': 'Toggle color theme',
   'common.imagePreview': 'Selected file preview', 'common.videoPreview': 'Selected video preview', 'common.refresh': 'Refresh',
   'home.eyebrow': 'Private by design', 'home.title': 'Send a moment. Not your data trail.',
-  'home.subtitle': 'Choose a photo or video, set an expiration, and share a secure download link as a QR code.',
-  'home.takePhoto': 'Take Photo', 'home.choose': 'Choose Photo or Video', 'home.drop': 'or drop a file here',
+  'home.subtitle': 'Choose a file, set an expiration, and share a secure download link as a QR code.',
+  'home.takePhoto': 'Take Photo', 'home.choose': 'Choose a file', 'home.drop': 'or drop a file here',
   'home.privateNotice': 'Selected files are uploaded to your configured ScanSend server and stored privately until expiration.',
-  'home.max': 'Images and videos up to {{max}} MB', 'home.recent': 'Recent uploads', 'home.viewAll': 'View all',
+  'home.max': 'Photos, videos, documents, audio & archives · up to {{max}} MB', 'home.recent': 'Recent uploads', 'home.viewAll': 'View all',
   'home.noRecent': 'Your recent QR links will appear here on this device.',
   'home.onDevice': 'On this device',
   'file.change': 'Remove or change file', 'file.name': 'File name', 'file.type': 'Detected type', 'file.size': 'File size',
   'file.expiration': 'Link expiration', 'file.oneDownload': 'Allow only one download',
   'file.oneDownloadHint': 'The first completed request consumes the link.', 'file.upload': 'Create secure QR link',
-  'file.tooLarge': 'This file exceeds the {{max}} MB limit and was not sent.', 'file.unsupported': 'Choose an image or video file.',
+  'file.tooLarge': 'This file exceeds the {{max}} MB limit and was not sent.', 'file.unsupported': 'Choose a supported photo, video, document, audio file or archive. Executables and web scripts are blocked.',
   'upload.preparing': 'Preparing secure upload…', 'upload.progress': '{{percent}}% uploaded', 'upload.cancel': 'Cancel upload',
   'upload.retry': 'Retry upload', 'upload.warning': 'Keep this page open and your device awake. Browsers may stop uploads when closed or locked.',
   'upload.offline': 'You are offline. Reconnect before uploading.', 'upload.cancelled': 'Upload cancelled. Your file was not saved on the server.',
@@ -65,7 +67,8 @@ const en: Record<string, string> = {
 }
 
 const ja: Record<string, string> = {
-  'home.uploadTitle': '写真も、動画も、その瞬間も。',
+  ...qrJa,
+  'home.uploadTitle': '写真も、書類も、まとめて共有。',
   ...collectionJa,
   'upload.password_not_supported': 'サーバーがまだパスワード保護に対応していません。保護されていないアップロードは削除しました。サーバー更新後に再試行してください。',
   'upload.password_cleanup_failed': 'パスワード保護を確認できず、削除にも失敗しました。このアップロードは共有せず、サーバー管理者に削除を依頼してください。',
@@ -78,16 +81,16 @@ const ja: Record<string, string> = {
   'common.skip': '本文へ移動', 'common.primaryNav': 'メインナビゲーション', 'common.language': '言語を変更', 'common.theme': '配色を変更',
   'common.imagePreview': '選択した画像のプレビュー', 'common.videoPreview': '選択した動画のプレビュー', 'common.refresh': '更新',
   'home.eyebrow': 'プライバシーを大切に', 'home.title': '思い出を、安全なリンクで。',
-  'home.subtitle': '写真や動画を選び、有効期限を設定して、安全なダウンロードQRコードを共有できます。',
-  'home.takePhoto': '写真を撮る', 'home.choose': '写真または動画を選ぶ', 'home.drop': 'またはファイルをここにドロップ',
+  'home.subtitle': 'ファイルを選び、有効期限を設定して、安全なダウンロードQRコードを共有できます。',
+  'home.takePhoto': '写真を撮る', 'home.choose': 'ファイルを選ぶ', 'home.drop': 'またはファイルをここにドロップ',
   'home.privateNotice': '選択したファイルは設定済みのScanSendサーバーへアップロードされ、有効期限まで非公開で保存されます。',
-  'home.max': '{{max}} MBまでの画像・動画', 'home.recent': '最近のアップロード', 'home.viewAll': 'すべて表示',
+  'home.max': '写真・動画・書類・音声・圧縮ファイル（最大{{max}} MB）', 'home.recent': '最近のアップロード', 'home.viewAll': 'すべて表示',
   'home.noRecent': 'この端末で作成したQRリンクがここに表示されます。',
   'home.onDevice': 'この端末に保存',
   'file.change': 'ファイルを削除・変更', 'file.name': 'ファイル名', 'file.type': '検出形式', 'file.size': 'ファイルサイズ',
   'file.expiration': 'リンクの有効期限', 'file.oneDownload': '1回だけダウンロードを許可',
   'file.oneDownloadHint': '最初の完了リクエストでリンクが無効になります。', 'file.upload': '安全なQRリンクを作成',
-  'file.tooLarge': 'このファイルは{{max}} MBの上限を超えているため送信されません。', 'file.unsupported': '画像または動画を選択してください。',
+  'file.tooLarge': 'このファイルは{{max}} MBの上限を超えているため送信されません。', 'file.unsupported': '対応する写真・動画・書類・音声・圧縮ファイルを選択してください。実行ファイルやウェブスクリプトは共有できません。',
   'upload.preparing': '安全なアップロードを準備中…', 'upload.progress': '{{percent}}% アップロード済み', 'upload.cancel': 'アップロードを中止',
   'upload.retry': 'もう一度試す', 'upload.warning': 'このページを開いたまま端末をスリープさせないでください。ブラウザを閉じると停止する場合があります。',
   'upload.offline': 'オフラインです。接続してからアップロードしてください。', 'upload.cancelled': 'アップロードを中止しました。サーバーには保存されていません。',

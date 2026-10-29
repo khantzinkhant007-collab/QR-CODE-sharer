@@ -32,7 +32,7 @@ export default defineConfig({
       manifest: {
         name: 'ScanSend · Private QR File Transfer',
         short_name: 'ScanSend',
-        description: 'Share photos and videos with expiring private QR links.',
+        description: 'Share files with expiring QR links, or create QR codes for text and websites.',
         theme_color: '#1469e8',
         background_color: '#e8eef7',
         display: 'standalone',

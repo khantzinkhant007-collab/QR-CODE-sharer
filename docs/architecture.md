@@ -20,7 +20,9 @@ flowchart LR
 
 ## Trust boundaries
 
-The browser-provided filename, extension, and MIME type are untrusted. Laravel uses `fileinfo` MIME detection, an explicit image/video allowlist, a random ULID storage filename, size validation, and a streaming SHA-256 digest. HTML, SVG, script, executable, and archive MIME types are absent from the allowlist.
+The browser-provided filename, extension, and MIME type are untrusted. Laravel uses `fileinfo` MIME detection, explicit media/attachment allowlists, a random ULID storage filename, size validation, and a streaming SHA-256 digest. Single uploads additionally accept common documents, audio and archives; event galleries remain media-only. Executable/script/HTML/SVG/macro-enabled Office filenames (including double extensions) are blocked. Non-media attachments use `.bin` storage suffixes, are never previewed or executed by the app, and download with attachment disposition and `nosniff`. Type detection is not antivirus scanning and archives are not extracted.
+
+The `/qr` tab encodes text or HTTP(S) website URLs directly in the browser, with no API or persistent storage. It validates URL schemes/credentials, enforces a 1000-byte UTF-8 payload limit, ignores stale asynchronous generations, and offers PNG save/share and copy. These direct QRs have no server-enforced expiry or revocation.
 
 The public download token and private management token are independent 32-byte random values. The download token appears only in the recipient URL. The management token is returned only once to the sender and later travels only in `X-Management-Token`. MySQL contains only `SHA-256(token)` values.
 

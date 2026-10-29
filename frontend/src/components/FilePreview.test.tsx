@@ -15,5 +15,12 @@ describe('FilePreview', () => {
     render(<I18nProvider><FilePreview file={new File(['abc'], 'clip.mov', { type: 'video/quicktime' })} url="blob:video" onRemove={vi.fn()} onChange={vi.fn()} /></I18nProvider>)
     expect(screen.getByLabelText('Selected video preview')).toHaveAttribute('preload', 'metadata')
   })
+
+  it('shows an attachment card without embedding or executing a document', () => {
+    const { container } = render(<I18nProvider><FilePreview file={new File(['pdf'], 'handout.pdf', { type: 'application/pdf' })} url="blob:pdf" onRemove={vi.fn()} onChange={vi.fn()} /></I18nProvider>)
+    expect(screen.getByText(/Attachment ready to share/)).toBeVisible()
+    expect(screen.getAllByText('handout.pdf').length).toBeGreaterThan(0)
+    expect(container.querySelector('iframe, object, embed, img, video')).toBeNull()
+  })
 })
 

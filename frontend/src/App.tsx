@@ -17,6 +17,7 @@ const router = createBrowserRouter([
     errorElement: <Layout><ErrorPage /></Layout>,
     children: [
       { path: '/', lazy: () => import('./pages/HomePage').then((module) => ({ Component: module.HomePage })) },
+      { path: '/qr', lazy: () => import('./pages/TextQrPage').then((module) => ({ Component: module.TextQrPage })) },
       { path: '/events', lazy: () => import('./pages/CollectionsPage').then((module) => ({ Component: module.CollectionsPage })) },
       { path: '/events/:collectionToken', lazy: () => import('./pages/EventCollectionPage').then((module) => ({ Component: module.EventCollectionPage })) },
       { path: '/share/:uploadId', lazy: () => import('./pages/SharePage').then((module) => ({ Component: module.SharePage })) },

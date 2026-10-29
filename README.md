@@ -1,6 +1,8 @@
 # ScanSend
 
-ScanSend is a mobile-first React PWA and Laravel API for sharing photos or videos through short-lived QR download links. The QR contains only a random download URL. File bytes live in private filesystem or S3-compatible object storage; MySQL stores metadata, private object paths, SHA-256 digests, counters, and **hashes** of two independent access tokens.
+ScanSend is a mobile-first React PWA and Laravel API for sharing photos, videos, documents, audio and archives through short-lived QR download links. File-sharing QRs contain only a random download URL. File bytes live in private filesystem or S3-compatible object storage; MySQL stores metadata, private object paths, SHA-256 digests, counters, and **hashes** of two independent access tokens.
+
+The **Text QR** tab (`/qr`) also creates direct plain-text or HTTP(S)-link QRs entirely in the browser, without an upload or stored history. These direct QRs have no expiry, password or revocation: anyone seeing the QR can read its content. They are limited to 1000 UTF-8 bytes for practical scanning.
 
 The receiving person needs only a normal phone camera and browser—no ScanSend account or app.
 
@@ -10,7 +12,7 @@ The receiving person needs only a normal phone camera and browser—no ScanSend 
 
 - React 19, TypeScript, Vite 8, Tailwind CSS 4, React Router, TanStack Query, Axios, Dexie IndexedDB, `qrcode`, and `vite-plugin-pwa`.
 - Live rear-camera preview with capture/retake/confirm and `<input capture="environment">` fallback.
-- Image/video selection, object-URL preview, 2 GiB client/server application limit, four expiration choices, and one-download mode.
+- File selection with image/video previews and metadata-only attachment cards; 2 GiB client/server application limit, four expiration choices, and one-download mode. Common PDF/Office/OpenDocument/text/audio/archive types are supported. Executable, script, SVG/HTML and macro-enabled Office filenames are blocked. Event collections remain photo/video-only.
 - True Axios upload progress, byte counts, speed, ETA, abort, retry, offline state, and navigation protection.
 - Local high-resolution QR generation, copy/share/save actions, live expiration countdown, status polling, and sender deletion.
 - English and Japanese interface, dark mode, responsive navigation, keyboard focus, touch targets, and ARIA live feedback.

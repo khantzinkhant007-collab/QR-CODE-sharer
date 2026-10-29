@@ -65,8 +65,8 @@ function CollectionView({ collectionToken }: { collectionToken: string }) {
     const selected = Array.from(event.target.files ?? [])
     event.target.value = ''
     if (!collection || selected.length === 0) return
-    const invalid = selected.map((file) => validateSelectedFile(file, collection.max_file_bytes)).find(Boolean)
-    if (invalid) { setError(invalid === 'too_large' ? t('file.tooLarge', { max: collection.max_file_bytes / 1024 ** 2 }) : t('file.unsupported')); return }
+    const invalid = selected.map((file) => validateSelectedFile(file, collection.max_file_bytes, true)).find(Boolean)
+    if (invalid) { setError(invalid === 'too_large' ? t('file.tooLarge', { max: collection.max_file_bytes / 1024 ** 2 }) : t('collection.unsupported')); return }
     if (selected.length + collection.file_count > collection.max_files || selected.reduce((total, file) => total + file.size, collection.total_bytes) > collection.max_total_bytes) { setError(t('collection.capacity')); return }
     setFiles(selected)
     setError('')

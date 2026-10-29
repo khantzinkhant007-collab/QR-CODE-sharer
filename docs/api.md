@@ -12,12 +12,16 @@ Optional `password` protects new files: at least 12 characters and at most 72 UT
 
 | Field | Required | Value |
 |---|---:|---|
-| `file` | yes | One allowed image/video binary, default maximum 2 GiB |
+| `file` | yes | One supported image, video, document, audio file or archive; default maximum 2 GiB |
 | `expires_in_minutes` | yes | `10`, `60`, `1440`, or `10080` |
 | `max_downloads` | no | omit/null for unlimited-until-expiration, or `1` |
 | `password` | no | 12+ characters, at most 72 UTF-8 bytes; omit/empty for no protection |
 
 The server detects MIME using file contents and stores the file privately before returning `201`. The response includes one-time raw `management_token` and a public `download_url`, but never a disk name, object key, filesystem path, bucket, or token hash.
+
+Attachment MIME types are configured separately in `scansend.attachment_mime_types`; event collection uploads continue to use the media-only allowlist. Dangerous executable/script/active-content filename extensions are rejected, including double extensions such as `invoice.php.jpg`. Attachments use randomized `.bin` storage names and download with their original filename and `Content-Disposition: attachment`. This is type validation, not antivirus scanning; archives are not extracted or scanned. Only open files from trusted senders.
+
+Text/link QRs on `/qr` are created locally, have no API endpoint or server record, and cannot be revoked or expired.
 
 Validation returns `422`, an app/edge size rejection may return `413`, upload throttling returns `429`, and storage/database failure returns `5xx`. Clients must not report success before receiving `201`.
 

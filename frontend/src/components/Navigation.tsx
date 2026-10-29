@@ -1,10 +1,11 @@
-import { CircleHelp, Clock3, Home, ShieldCheck, UsersRound } from 'lucide-react'
+import { CircleHelp, Clock3, Home, QrCode, ShieldCheck, UsersRound } from 'lucide-react'
 import { useLayoutEffect, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useI18n } from '../i18n'
 
 const navigation = [
   { to: '/', key: 'nav.home', icon: Home },
+  { to: '/qr', key: 'nav.qr', icon: QrCode },
   { to: '/events', key: 'nav.events', icon: UsersRound },
   { to: '/history', key: 'nav.history', icon: Clock3 },
   { to: '/privacy', key: 'nav.privacy', icon: ShieldCheck },

@@ -1,5 +1,10 @@
 export type PreviewKind = 'image' | 'video' | 'unknown'
 
+export const FILE_ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,image/heif,video/mp4,video/quicktime,video/webm,.jpg,.jpeg,.png,.webp,.heic,.heif,.mp4,.mov,.webm,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp,.rtf,.txt,.csv,.json,.zip,.7z,.rar,.gz,.tar,.mp3,.m4a,.wav,.ogg,.flac,.aac'
+const unsafeExtension = /\.(exe|com|msi|dll|scr|bat|cmd|ps1|sh|bash|vbs|vbe|js|mjs|cjs|jse|wsf|wsh|hta|html?|xhtml|svg|php\d*|phtml|phar|py|pl|rb|jar|apk|app|dmg|iso|lnk|url|docm|xlsm|pptm)(?:[.\s]|$)/i
+const mediaExtension = /\.(jpe?g|png|webp|heic|heif|mp4|mov|webm)$/i
+const attachmentExtension = /\.(pdf|docx?|xlsx?|pptx?|odt|ods|odp|rtf|txt|csv|json|zip|7z|rar|gz|tar|mp3|m4a|wav|ogg|flac|aac)$/i
+
 export function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes < 1) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB']
@@ -14,9 +19,10 @@ export function previewKind(mimeType: string): PreviewKind {
   return 'unknown'
 }
 
-export function validateSelectedFile(file: File, maxBytes: number): string | null {
-  const supportedExtension = /\.(jpe?g|png|webp|heic|heif|mp4|mov|webm)$/i.test(file.name)
-  if (!file.type.startsWith('image/') && !file.type.startsWith('video/') && !(file.type === '' && supportedExtension)) return 'unsupported_type'
+export function validateSelectedFile(file: File, maxBytes: number, mediaOnly = false): string | null {
+  if (unsafeExtension.test(file.name) || ['text/html', 'image/svg+xml', 'application/javascript', 'text/javascript'].includes(file.type)) return 'unsupported_type'
+  const media = file.type.startsWith('image/') || file.type.startsWith('video/') || (file.type === '' && mediaExtension.test(file.name))
+  if (!media && (mediaOnly || !attachmentExtension.test(file.name))) return 'unsupported_type'
   if (file.size > maxBytes) return 'too_large'
   return null
 }

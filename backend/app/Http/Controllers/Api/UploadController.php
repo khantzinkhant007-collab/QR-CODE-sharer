@@ -21,7 +21,10 @@ class UploadController extends Controller
         $file = $request->file('file');
         $mimeType = $file->getMimeType() ?: 'application/octet-stream';
 
-        if (! in_array($mimeType, config('scansend.allowed_mime_types'), true)) {
+        $allowedTypes = array_merge(config('scansend.allowed_mime_types'), config('scansend.attachment_mime_types'));
+        $unsafeName = preg_match('/\.(exe|com|msi|dll|scr|bat|cmd|ps1|sh|bash|vbs|vbe|js|mjs|cjs|jse|wsf|wsh|hta|html?|xhtml|svg|php\d*|phtml|phar|py|pl|rb|jar|apk|app|dmg|iso|lnk|url|docm|xlsm|pptm)(?:[.\s]|$)/i', $file->getClientOriginalName());
+
+        if ($unsafeName || ! in_array($mimeType, $allowedTypes, true)) {
             throw ValidationException::withMessages([
                 'file' => ['This server does not allow the detected file type.'],
             ]);
@@ -36,7 +39,7 @@ class UploadController extends Controller
         $downloadToken = SecureToken::generate();
         $managementToken = SecureToken::generate();
         $disk = (string) config('scansend.storage_disk');
-        $extension = config('scansend.extension_by_mime')[$mimeType] ?? null;
+        $extension = config('scansend.extension_by_mime')[$mimeType] ?? 'bin';
         $storageName = Str::lower((string) Str::ulid()).($extension ? '.'.$extension : '');
         $directory = 'uploads/'.now()->utc()->format('Y/m/d');
         $storagePath = null;
