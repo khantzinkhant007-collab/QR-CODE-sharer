@@ -6,6 +6,11 @@ type Locale = 'en' | 'ja'
 type Values = Record<string, string | number>
 
 const en: Record<string, string> = {
+  'backgrounds.open': 'Change background', 'backgrounds.eyebrow': 'Make it yours',
+  'backgrounds.title': 'Choose your backdrop', 'backgrounds.description': 'Select a scene to preview it across the app. Your original background is always here.',
+  'backgrounds.dusk': 'Original sunset', 'backgrounds.alpine': 'Alpine mist', 'backgrounds.coast': 'Lavender coast', 'backgrounds.pearl': 'Pearl glass',
+  'backgrounds.saved': 'Your choice stays in this browser. It does not change shared links or other devices.',
+  'backgrounds.sessionOnly': 'Browser storage is unavailable. Your choice lasts only for this session.', 'backgrounds.done': 'Done',
   ...qrEn,
   'home.uploadTitle': 'Photos, documents, and more.',
   ...collectionEn,
@@ -67,6 +72,11 @@ const en: Record<string, string> = {
 }
 
 const ja: Record<string, string> = {
+  'backgrounds.open': '背景を変更', 'backgrounds.eyebrow': '自分好みの空間に',
+  'backgrounds.title': '背景を選ぶ', 'backgrounds.description': '好きな背景を選ぶと、アプリ全体にすぐ反映されます。元の背景にもいつでも戻せます。',
+  'backgrounds.dusk': '元の夕景', 'backgrounds.alpine': '霧の湖畔', 'backgrounds.coast': 'ラベンダーの海岸', 'backgrounds.pearl': 'パールガラス',
+  'backgrounds.saved': '設定はこのブラウザに保存されます。共有リンクや他の端末には影響しません。',
+  'backgrounds.sessionOnly': 'ブラウザに保存できません。選択はこのセッションの間だけ有効です。', 'backgrounds.done': '完了',
   ...qrJa,
   'home.uploadTitle': '写真も、書類も、まとめて共有。',
   ...collectionJa,

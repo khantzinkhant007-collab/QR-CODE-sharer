@@ -46,6 +46,17 @@
   --glass-shadow: 0 20px 64px -24px rgba(0, 6, 20, .6), 0 2px 8px rgba(0, 0, 0, .06);
   --glass-highlight: inset 0 1px 0 rgba(237, 246, 255, .3), inset 1px 0 0 rgba(232, 244, 255, .09), inset 0 -1px 0 rgba(0, 0, 0, .12);
 }
+/* Japanese gets native UI typography instead of Latin display-face spacing. */
+:root:lang(ja) {
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", Meiryo, sans-serif;
+  font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: .01em;
+  line-break: strict;
+  --font-weight-black: 600;
+  --font-weight-extrabold: 600;
+  --font-weight-bold: 600;
+}
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 100px; }
 body { margin: 0; min-width: 280px; min-height: 100vh; }
@@ -97,13 +108,13 @@ h1, h2, h3, strong { text-wrap: pretty; }
   pointer-events: none;
   background:
     linear-gradient(115deg, rgba(236, 245, 250, .68), rgba(229, 239, 245, .48)),
-    url('/hero-dusk.webp') center / cover no-repeat;
+    var(--app-wallpaper, url('/hero-dusk.webp')) center / cover no-repeat;
   background-color: #d6e1e7;
 }
 .dark .app-shell::before {
   background:
     linear-gradient(115deg, rgba(10, 19, 29, .48), rgba(14, 24, 33, .3)),
-    url('/hero-dusk.webp') center / cover no-repeat;
+    var(--app-wallpaper, url('/hero-dusk.webp')) center / cover no-repeat;
   background-color: #182532;
 }
 /* Refraction-inspired edges. No continuously animated filters or SVG distortion. */
@@ -189,7 +200,7 @@ h1, h2, h3, strong { text-wrap: pretty; }
 .liquid-dock .nav-item { min-width: 0; min-height: 53px; gap: 4px; flex-direction: column; padding: 6px 2px; font-size: 10px; }
 .home-intro { display: grid; align-items: center; gap: 36px; padding: 26px 0 14px; }
 .home-heading { max-width: 600px; margin-top: 18px; font-size: clamp(2.6rem, 5.3vw, 4.25rem); line-height: 1.04; letter-spacing: -.065em; font-weight: 650; text-wrap: balance; }
-:lang(ja) .home-heading { font-size: clamp(2.15rem, 4.8vw, 3.8rem); line-height: 1.15; letter-spacing: -.045em; word-break: auto-phrase; }
+:lang(ja) .home-heading { font-size: clamp(2rem, 4.5vw, 3.35rem); line-height: 1.5; letter-spacing: .01em; font-weight: 600; word-break: auto-phrase; }
 .home-copy > p:not(.section-kicker) { max-width: 420px; }
 .privacy-badge { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border: 1px solid var(--glass-edge); border-radius: 999px; font-size: 11px; font-weight: 550; color: var(--accent); background: rgba(255, 255, 255, .32); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .65); }
 .hero-upload { position: relative; display: flex; min-height: 350px; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 32px; text-align: center; transition: border-color .2s ease, box-shadow .2s ease; }
@@ -249,7 +260,11 @@ h1, h2, h3, strong { text-wrap: pretty; }
 }
 .liquid-dock .nav-item { text-align: center; line-break: strict; }
 .qr-kind > button { padding-inline: 12px; gap: 6px; }
-:lang(ja) .qr-heading { word-break: auto-phrase; }
+:lang(ja) .page-title { font-size: clamp(1.875rem, 4.3vw, 2.75rem); line-height: 1.5; letter-spacing: .01em; font-weight: 600; word-break: normal; }
+:lang(ja) :is(h2, h3) { letter-spacing: .01em; line-height: 1.6; }
+:lang(ja) :is(.nav-item, .background-card-caption, .privacy-badge) { font-weight: 500; letter-spacing: 0; }
+:lang(ja) :is(.upload-label, .section-kicker) { letter-spacing: .02em; }
+:lang(ja) .page-subtitle { line-height: 1.9; }
 .confirm-dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; padding: 28px; }
 .confirm-dialog[open] { animation: confirm-dialog-enter .24s cubic-bezier(.16, 1, .3, 1) both; }
 .confirm-dialog::backdrop { background: rgba(4, 12, 24, .54); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: confirm-backdrop-enter .2s ease-out both; }
@@ -257,6 +272,23 @@ h1, h2, h3, strong { text-wrap: pretty; }
 .dark .confirm-dialog-icon { border-color: rgba(255, 186, 197, .22); background: rgba(168, 65, 89, .15); color: #ffc2ce; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12); }
 .confirm-dialog-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .confirm-dialog-actions > button { flex: 1 1 140px; min-width: 0; }
+.background-dialog { width: calc(100% - 2rem); max-width: 620px; border-radius: 28px; }
+.background-dialog::backdrop { background: rgba(4, 12, 24, .18); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.background-choice { position: relative; cursor: pointer; min-width: 0; }
+.background-card { display: block; overflow: hidden; border: 2px solid var(--glass-edge); border-radius: 18px; background: var(--glass-fill); transition: border-color .2s ease, box-shadow .2s ease; }
+.background-thumbnail { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+.background-card-caption { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; padding: 10px 12px; font-size: 13px; font-weight: 550; color: var(--ink); }
+.background-check { display: grid; place-items: center; flex-shrink: 0; width: 22px; height: 22px; border: 1px solid var(--glass-edge); border-radius: 50%; }
+.background-choice input:checked + .background-card { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.background-choice input:checked + .background-card .background-check { background: #1469e8; border-color: #1469e8; color: white; }
+.background-choice input:focus-visible + .background-card { outline: 3px solid var(--accent); outline-offset: 4px; }
+@media (max-width: 380px) {
+  .header-inner { gap: 4px; padding-inline: 8px; }
+  .header-inner .icon-button { width: 40px; }
+  .brand-link { gap: 6px; }
+  .background-dialog { padding: 20px; }
+  .background-card-caption { padding-inline: 8px; font-size: 12px; }
+}
 @keyframes confirm-dialog-enter { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes confirm-backdrop-enter { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-contrast: more) {

@@ -3,6 +3,7 @@ import { Check, Clock3, Copy, Download, FileDown, Link2, QrCode, Share2, Trash2,
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { deleteRemoteUpload, fetchUploadStatus } from '../api/uploadClient'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StatusBadge } from '../components/StatusBadge'
 import { useCountdown } from '../hooks/useCountdown'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
@@ -18,6 +19,7 @@ export function SharePage() {
   const online = useOnlineStatus()
   const queryClient = useQueryClient()
   const [copied, setCopied] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
   const recordQuery = useQuery({ queryKey: ['upload', uploadId], queryFn: () => getUpload(uploadId), enabled: Boolean(uploadId) })
   const record = recordQuery.data
   const countdown = useCountdown(record?.expiresAt ?? new Date().toISOString())
@@ -42,6 +44,7 @@ export function SharePage() {
       queryClient.setQueryData(['upload-status', uploadId], (current: typeof statusQuery.data) => current ? { ...current, status: 'deleted', file_exists: false } : current)
       await queryClient.invalidateQueries({ queryKey: ['upload', uploadId] })
       await queryClient.invalidateQueries({ queryKey: ['history'] })
+      setConfirmingDelete(false)
     },
   })
 
@@ -90,9 +93,19 @@ export function SharePage() {
         <dl className="mt-7 grid grid-cols-3 gap-2"><div className="metric"><dt>{t('share.expires')}</dt><dd>{status === 'expired' ? t('share.expired') : countdown.label}</dd></div><div className="metric"><dt>{t('share.allowed')}</dt><dd>{record.maxDownloads ?? '∞'}</dd></div><div className="metric"><dt>{t('share.downloaded')}</dt><dd>{downloadCount}</dd></div></dl>
         <p className="glass-inset mt-5 rounded-2xl p-4 text-sm leading-6 text-slate-600 dark:text-slate-300"><Clock3 className="mr-2 inline text-teal-600" size={17} />{t('share.qrNotice', { time: expiresLabel })}</p>
         <div className="mt-6 grid grid-cols-2 gap-2"><button type="button" className="secondary-button justify-center" onClick={() => void copy()}>{copied ? <Check size={18} /> : <Copy size={18} />}{copied ? t('share.copied') : t('share.copy')}</button><button type="button" className="secondary-button justify-center" onClick={() => void shareLink()}><Share2 size={18} />{t('share.shareLink')}</button><button type="button" className="secondary-button justify-center" onClick={downloadQr} disabled={!qrQuery.data}><Download size={18} />{t('share.downloadQr')}</button><button type="button" className="secondary-button justify-center" onClick={() => void shareQr()} disabled={!qrQuery.data}><FileDown size={18} />{t('share.shareQr')}</button></div>
-        <div className="mt-auto flex flex-wrap gap-2 pt-7"><Link to="/" className="primary-button"><UploadCloud size={18} />{t('share.another')}</Link>{status !== 'deleted' && <button type="button" className="danger-button" disabled={!online || deleteMutation.isPending} onClick={() => { if (window.confirm(t('history.confirmDelete'))) deleteMutation.mutate() }}><Trash2 size={18} />{t('share.delete')}</button>}</div>
+        <div className="mt-auto flex flex-wrap gap-2 pt-7"><Link to="/" className="primary-button"><UploadCloud size={18} />{t('share.another')}</Link>{status !== 'deleted' && <button type="button" className="danger-button" disabled={!online || deleteMutation.isPending} onClick={() => { deleteMutation.reset(); setConfirmingDelete(true) }}><Trash2 size={18} />{t('share.delete')}</button>}</div>
       </div>
     </section>
     <div className="glass-soft flex items-start gap-3 rounded-2xl p-4 text-sm text-slate-600 dark:text-slate-300"><Link2 className="shrink-0 text-teal-700" /><span className="break-all">{record.downloadUrl}</span></div>
+    {confirmingDelete && <ConfirmDialog
+      title={t('history.deleteTitle')}
+      message={t('history.confirmDelete')}
+      fileName={record.originalName}
+      confirmLabel={t('history.deleteRemote')}
+      busy={deleteMutation.isPending}
+      error={deleteMutation.isError ? t('history.failedDelete') : !online ? t('history.offlineDelete') : null}
+      onCancel={() => setConfirmingDelete(false)}
+      onConfirm={() => { if (online && !deleteMutation.isPending && status !== 'deleted') deleteMutation.mutate() }}
+    />}
   </div>
 }
