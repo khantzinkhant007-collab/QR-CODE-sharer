@@ -61,7 +61,7 @@ export function Navigation({ mobile = false }: { mobile?: boolean }) {
     <nav ref={navigationRef} className={mobile ? 'liquid-dock' : 'desktop-navigation'} aria-label={t('common.primaryNav')}>
       <span ref={indicatorRef} className="nav-indicator" aria-hidden="true" />
       {navigation.map(({ to, key, icon: Icon }) => (
-        <NavLink key={to} to={to} end={to === '/'} viewTransition className="nav-item">
+        <NavLink key={to} to={to} end={to === '/'} className="nav-item">
           <Icon size={mobile ? 20 : 16} strokeWidth={mobile ? 1.7 : 1.8} />{t(key)}
         </NavLink>
       ))}

@@ -36,7 +36,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <a href="#main" className="sr-only z-50 rounded-lg bg-white p-3 focus:not-sr-only focus:fixed focus:left-3 focus:top-3">{t('common.skip')}</a>
       <header className="app-header">
         <div className="glass-header header-inner">
-          <NavLink to="/" viewTransition className="brand-link">
+          <NavLink to="/" className="brand-link">
             <span className="brand-symbol"><QrCode size={21} strokeWidth={1.8} /></span>
             <span><strong className="brand-name">ScanSend</strong><small className="brand-caption">{t('brand.tagline')}</small></span>
           </NavLink>
@@ -50,7 +50,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main id="main" className="app-main">
-        <div key={pathname} className={`route-content${typeof document.startViewTransition === 'function' ? '' : ' route-content-fallback'}`}>{children}</div>
+        <div key={pathname} className="route-content">{children}</div>
       </main>
       <Navigation mobile />
       <PwaUpdatePrompt />

@@ -179,22 +179,12 @@ h1, h2, h3, strong { text-wrap: pretty; }
 .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 10px; font-weight: 600; color: #167448; background: rgba(225, 247, 237, .75); }
 .status-pill.offline { color: #8d570e; background: #fff0d5; }
 .status-pill > span { height: 5px; width: 5px; border-radius: 50%; background: currentColor; }
-.app-main { max-width: 1120px; margin: auto; padding: 52px 24px 120px; view-transition-name: tab-content; }
-.route-content-fallback { animation: tab-content-in .42s cubic-bezier(.22, 1, .36, 1) both; }
-/* Keep the background and navigation live while only the page content changes. */
-:root { view-transition-name: none; }
-::view-transition { pointer-events: none; }
-::view-transition-group(tab-content) { animation-duration: .42s; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
-::view-transition-old(tab-content) { animation: tab-content-out .18s ease-out both; }
-::view-transition-new(tab-content) { animation: tab-content-in .42s cubic-bezier(.22, 1, .36, 1) both; }
-::view-transition-old(tab-content), ::view-transition-new(tab-content) { mix-blend-mode: normal; }
-@keyframes tab-content-out {
-  from { opacity: 1; transform: translateY(0) scale(1); }
-  to { opacity: 0; transform: translateY(-10px) scale(.995); }
-}
+.app-main { max-width: 1120px; margin: auto; padding: 52px 24px 120px; }
+/* Animate live content beneath the glass controls, without a snapshot or fade. */
+.route-content { animation: tab-content-in .22s cubic-bezier(.22, 1, .36, 1); }
 @keyframes tab-content-in {
-  from { opacity: 0; transform: translateY(20px) scale(.99); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { transform: translateY(8px); }
+  to { transform: none; }
 }
 .liquid-dock { position: fixed; isolation: isolate; z-index: 40; inset-inline: 12px; bottom: max(12px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; width: min(calc(100% - 24px), 500px); margin-inline: auto; padding: 7px; border-radius: 999px; }
 .liquid-dock .nav-item { min-width: 0; min-height: 53px; gap: 4px; flex-direction: column; padding: 6px 2px; font-size: 10px; }
@@ -312,7 +302,6 @@ h1, h2, h3, strong { text-wrap: pretty; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
-  .confirm-dialog[open], .confirm-dialog::backdrop { animation: none; }
+  .route-content, .confirm-dialog[open], .confirm-dialog::backdrop { animation: none; }
 }
 
