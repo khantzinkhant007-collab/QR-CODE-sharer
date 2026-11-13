@@ -26,3 +26,14 @@ export function validateSelectedFile(file: File, maxBytes: number, mediaOnly = f
   if (file.size > maxBytes) return 'too_large'
   return null
 }
+
+export function validateSelectedFiles(files: File[], maxBytes: number, mediaOnly = false): string | null {
+  let totalBytes = 0
+  for (const file of files) {
+    const error = validateSelectedFile(file, maxBytes, mediaOnly)
+    if (error) return error
+    totalBytes += file.size
+  }
+  if (totalBytes > maxBytes) return 'too_large'
+  return null
+}

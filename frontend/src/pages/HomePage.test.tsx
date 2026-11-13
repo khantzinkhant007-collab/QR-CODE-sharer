@@ -44,4 +44,31 @@ describe('single-file attachments', () => {
     expect(mocks.upload).not.toHaveBeenCalled()
     expect(screen.queryByRole('button', { name: 'Create secure QR link' })).not.toBeInTheDocument()
   })
+
+  it('bundles multiple selected files into a single ZIP upload and supports adding or removing files', async () => {
+    mocks.upload.mockResolvedValueOnce({ id: 'bundle-id', originalName: 'scansend-2-files.zip', mimeType: 'application/zip' })
+    openHome()
+    const first = new File(['hello'], 'notes.txt', { type: 'text/plain' })
+    const second = new File(['%PDF-1.4'], 'handout.pdf', { type: 'application/pdf' })
+    const third = new File(['extra'], 'extra.txt', { type: 'text/plain' })
+
+    await userEvent.upload(screen.getByLabelText('Choose a file'), [first, second])
+    expect(screen.getByText('2 files selected')).toBeVisible()
+    expect(screen.getAllByText('scansend-2-files.zip').length).toBeGreaterThan(0)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add files' }))
+    await userEvent.upload(screen.getByLabelText('Choose a file'), third)
+    expect(screen.getByText('3 files selected')).toBeVisible()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Remove extra.txt' }))
+    expect(screen.getByText('2 files selected')).toBeVisible()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Create secure QR link' }))
+    expect(await screen.findByText('Attachment QR page opened')).toBeVisible()
+    expect(mocks.upload).toHaveBeenCalledTimes(1)
+    const uploadedFile = mocks.upload.mock.calls[0][0].file as File
+    expect(uploadedFile.name).toBe('scansend-2-files.zip')
+    expect(uploadedFile.type).toBe('application/zip')
+    expect(mocks.save).toHaveBeenCalledWith(expect.objectContaining({ id: 'bundle-id' }))
+  })
 })

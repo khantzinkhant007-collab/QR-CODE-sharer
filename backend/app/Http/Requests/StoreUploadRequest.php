@@ -15,7 +15,9 @@ class StoreUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', 'max:'.config('scansend.max_upload_kb')],
+            'file' => ['required_without:files', 'file', 'max:'.config('scansend.max_upload_kb')],
+            'files' => ['nullable', 'array', 'min:1', 'max:50'],
+            'files.*' => ['required', 'file', 'max:'.config('scansend.max_upload_kb')],
             'expires_in_minutes' => ['required', 'integer', Rule::in(config('scansend.expiration_minutes'))],
             'max_downloads' => ['nullable', 'integer', Rule::in([1])],
             'password' => ['nullable', 'string', 'min:12', 'max:72', function ($attribute, $value, $fail): void {

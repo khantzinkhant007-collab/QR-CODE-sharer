@@ -97,4 +97,21 @@ class AttachmentUploadTest extends TestCase
             'expires_in_minutes' => 10,
         ])->assertUnprocessable()->assertJsonValidationErrors('file');
     }
+
+    public function test_multiple_files_are_bundled_into_a_single_zip_upload(): void
+    {
+        $data = $this->postJson('/api/v1/uploads', [
+            'files' => [
+                $this->actualFile('agenda.txt', "Session 1\n"),
+                $this->actualFile('roster.csv', "Name,Role\nAlice,Speaker\n"),
+            ],
+            'expires_in_minutes' => 60,
+        ])->assertCreated()
+            ->assertJsonPath('data.original_name', 'scansend-2-files.zip')
+            ->assertJsonPath('data.mime_type', 'application/zip')
+            ->json('data');
+
+        $upload = Upload::findOrFail($data['id']);
+        Storage::disk('local')->assertExists($upload->storage_path);
+    }
 }

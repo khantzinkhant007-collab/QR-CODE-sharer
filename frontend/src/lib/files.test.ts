@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatBytes, previewKind, validateSelectedFile } from './files'
+import { formatBytes, previewKind, validateSelectedFile, validateSelectedFiles } from './files'
 
 describe('file selection and preview helpers', () => {
   it('accepts supported images and videos', () => {
@@ -50,5 +50,12 @@ describe('file selection and preview helpers', () => {
     expect(formatBytes(0)).toBe('0 B')
     expect(formatBytes(1536)).toBe('1.5 KB')
     expect(formatBytes(10 * 1024 * 1024)).toBe('10 MB')
+  })
+
+  it('validates multiple files and enforces the combined size limit', () => {
+    const first = new File(['123'], 'photo.jpg', { type: 'image/jpeg' })
+    const second = new File(['456'], 'notes.pdf', { type: 'application/pdf' })
+    expect(validateSelectedFiles([first, second], 10)).toBeNull()
+    expect(validateSelectedFiles([first, second], 5)).toBe('too_large')
   })
 })

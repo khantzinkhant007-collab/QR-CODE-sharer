@@ -8,8 +8,9 @@ import { FilePreview } from '../components/FilePreview'
 import { StatusBadge } from '../components/StatusBadge'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { useI18n } from '../i18n'
-import { FILE_ACCEPT, formatBytes, validateSelectedFile } from '../lib/files'
+import { FILE_ACCEPT, formatBytes, validateSelectedFiles } from '../lib/files'
 import { effectiveUploadStatus, listUploads, saveUpload } from '../lib/history'
+import { bundleFilesAsZip } from '../lib/zip'
 import type { UploadProgress } from '../types'
 
 const MAX_MB = Number(import.meta.env.VITE_UPLOAD_MAX_MB ?? 2048) || 2048
@@ -27,11 +28,12 @@ export function HomePage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const inputRef = useRef<HTMLInputElement>(null)
+  const appendModeRef = useRef(false)
   const abortRef = useRef<AbortController | null>(null)
   const allowSuccessNavigationRef = useRef(false)
   const [cameraOpen, setCameraOpen] = useState(false)
   const [dragging, setDragging] = useState(false)
-  const [file, setFile] = useState<File | null>(null)
+  const [files, setFiles] = useState<File[]>([])
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [expiration, setExpiration] = useState(1440)
   const [oneDownload, setOneDownload] = useState(false)
@@ -39,6 +41,7 @@ export function HomePage() {
   const [progress, setProgress] = useState<UploadProgress | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const file = files[0] ?? null
   const blocker = useBlocker(() => uploading && !allowSuccessNavigationRef.current)
   const history = useQuery({ queryKey: ['history'], queryFn: listUploads })
 
@@ -68,21 +71,28 @@ export function HomePage() {
     return () => window.removeEventListener('beforeunload', guard)
   }, [uploading])
 
-  const chooseFile = (candidate?: File) => {
-    if (!candidate) return
-    const validation = validateSelectedFile(candidate, MAX_BYTES)
+  const chooseFiles = (candidates?: FileList | File[] | null, append = false) => {
+    const incoming = candidates ? Array.from(candidates) : []
+    if (incoming.length === 0) return
+    const nextFiles = append ? [...files, ...incoming] : incoming
+    const validation = validateSelectedFiles(nextFiles, MAX_BYTES)
     if (validation) {
       setError(validation)
-      setFile(null)
+      if (!append) setFiles([])
       return
     }
     setError(null)
     setProgress(null)
-    setFile(candidate)
+    setFiles(nextFiles)
+  }
+
+  const openFilePicker = (append = false) => {
+    appendModeRef.current = append
+    inputRef.current?.click()
   }
 
   const startUpload = async () => {
-    if (!file || uploading) return
+    if (files.length === 0 || uploading) return
     if (password && (Array.from(password).length < 12 || new TextEncoder().encode(password).length > 72)) {
       setError('password_invalid')
       return
@@ -91,7 +101,7 @@ export function HomePage() {
       setError('offline')
       return
     }
-    const validation = validateSelectedFile(file, MAX_BYTES)
+    const validation = validateSelectedFiles(files, MAX_BYTES)
     if (validation) {
       setError(validation)
       return
@@ -103,8 +113,9 @@ export function HomePage() {
     setProgress(null)
     setError(null)
     try {
+      const uploadTarget = files.length === 1 ? files[0] : await bundleFilesAsZip(files)
       const record = await uploadFile({
-        file,
+        file: uploadTarget,
         expirationMinutes: expiration,
         maxDownloads: oneDownload ? 1 : null,
         password: password || undefined,
@@ -130,7 +141,7 @@ export function HomePage() {
   const onDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault()
     setDragging(false)
-    chooseFile(event.dataTransfer.files[0])
+    chooseFiles(event.dataTransfer.files, files.length > 0)
   }
 
   return <div className="space-y-8 sm:space-y-10">
@@ -145,17 +156,38 @@ export function HomePage() {
         <span className="upload-symbol" aria-hidden="true"><CloudUpload size={37} strokeWidth={1.3} /></span>
         <div><p className="upload-label">{t('home.uploadTitle')}</p><p className="upload-meta">{t('home.max', { max: MAX_MB })}</p></div>
         <div className="upload-buttons">
-          <button type="button" className="primary-button" onClick={() => inputRef.current?.click()} disabled={uploading}><Paperclip size={18} strokeWidth={1.8} />{t('home.choose')}</button>
+          <button type="button" className="primary-button" onClick={() => openFilePicker(false)} disabled={uploading}><Paperclip size={18} strokeWidth={1.8} />{t('home.choose')}</button>
           <button type="button" className="secondary-button" onClick={() => setCameraOpen(true)} disabled={uploading}><Camera size={18} strokeWidth={1.8} />{t('home.takePhoto')}</button>
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-300">{t('home.drop')}</p>
       </div>
-      <input ref={inputRef} className="sr-only" type="file" accept={FILE_ACCEPT} onChange={(event) => { chooseFile(event.target.files?.[0]); event.target.value = '' }} aria-label={t('home.choose')} />
+      <input
+        ref={inputRef}
+        className="sr-only"
+        type="file"
+        multiple
+        accept={FILE_ACCEPT}
+        onChange={(event) => {
+          const append = appendModeRef.current
+          appendModeRef.current = false
+          chooseFiles(event.target.files, append)
+          event.target.value = ''
+        }}
+        aria-label={t('home.choose')}
+      />
     </section>
     <Link to="/events" className="glass-soft event-invitation"><span className="invitation-icon" aria-hidden="true"><UsersRound size={20} strokeWidth={1.7} /></span><span className="min-w-0 flex-1"><strong>{t('collection.homeTitle')}</strong><small>{t('collection.homeHint')}</small></span><ArrowUpRight className="shrink-0 text-teal-700 dark:text-teal-300" size={19} /></Link>
 
     {file && previewUrl && <div className="space-y-6">
-      <FilePreview file={file} url={previewUrl} onRemove={() => { if (!uploading) setFile(null) }} onChange={() => inputRef.current?.click()} />
+      <FilePreview
+        file={file}
+        files={files}
+        url={previewUrl}
+        onRemove={() => { if (!uploading) setFiles([]) }}
+        onChange={() => openFilePicker(false)}
+        onAddFiles={() => openFilePicker(true)}
+        onRemoveFile={(index) => { if (!uploading) setFiles((current) => current.filter((_, itemIndex) => itemIndex !== index)) }}
+      />
       <section className="glass-panel grid gap-6 rounded-3xl p-6 lg:grid-cols-2">
         <div className="lg:col-span-2">
           <label htmlFor="download-password" className="mb-2 flex items-center gap-2 font-black"><LockKeyhole size={18} />{t('file.password')}</label>
@@ -182,6 +214,6 @@ export function HomePage() {
       <div className="mb-4 flex items-end justify-between"><div><p className="section-kicker"><CheckCircle2 size={15} />{t('home.onDevice')}</p><h2 className="text-2xl font-black tracking-tight">{t('home.recent')}</h2></div><Link to="/history" className="text-sm font-bold text-teal-700 hover:underline dark:text-teal-300">{t('home.viewAll')}</Link></div>
       {history.isLoading ? <div className="skeleton h-28" /> : recent.length === 0 ? <div className="glass-soft recent-empty rounded-3xl"><Clock3 size={24} strokeWidth={1.5} className="shrink-0 opacity-65" /><p className="text-sm">{t('home.noRecent')}</p></div> : <div className="grid gap-3 md:grid-cols-3">{recent.map((item) => <Link key={item.id} to={`/share/${item.id}`} className="glass-panel rounded-2xl p-4 transition hover:-translate-y-1 hover:shadow-xl"><div className="flex items-start justify-between gap-3"><QrCode className="text-teal-700" /><StatusBadge status={effectiveUploadStatus(item)} /></div><p className="mt-4 truncate font-black">{item.originalName}</p><p className="text-sm text-slate-500 dark:text-slate-300">{formatBytes(item.sizeBytes)}</p></Link>)}</div>}
     </section>
-    <CameraCapture open={cameraOpen} onSelect={chooseFile} onClose={() => setCameraOpen(false)} />
+    <CameraCapture open={cameraOpen} onSelect={(captured) => chooseFiles([captured], files.length > 0)} onClose={() => setCameraOpen(false)} />
   </div>
 }
