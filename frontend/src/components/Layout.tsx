@@ -6,17 +6,33 @@ import { useI18n } from '../i18n'
 import { PwaUpdatePrompt } from './PwaUpdatePrompt'
 import { Navigation } from './Navigation'
 import { BackgroundPicker } from './BackgroundPicker'
-import { backgrounds, readBackground, saveBackground, type BackgroundId } from '../lib/backgrounds'
+import { NeonBackground } from './NeonBackground'
+import {
+  backgrounds,
+  readBackground,
+  readNeonConfig,
+  saveBackground,
+  saveNeonConfig,
+  type BackgroundId,
+  type NeonWallpaperConfig,
+} from '../lib/backgrounds'
 
 export function Layout({ children }: { children: ReactNode }) {
   const { pathname } = useLocation()
   const online = useOnlineStatus()
   const { locale, setLocale, t } = useI18n()
   const [background, setBackground] = useState(readBackground)
+  const [neonConfig, setNeonConfig] = useState(readNeonConfig)
   const [backgroundSaved, setBackgroundSaved] = useState(true)
   const changeBackground = (value: BackgroundId) => {
     setBackground(value)
-    setBackgroundSaved(saveBackground(value))
+    const nextNeon = { ...neonConfig, enabled: false }
+    setNeonConfig(nextNeon)
+    setBackgroundSaved(saveBackground(value) && saveNeonConfig(nextNeon))
+  }
+  const changeNeonConfig = (next: NeonWallpaperConfig) => {
+    setNeonConfig(next)
+    setBackgroundSaved(saveNeonConfig(next))
   }
   const wallpaper = backgrounds.find((option) => option.id === background) ?? backgrounds[0]
   const [dark, setDark] = useState(() => {
@@ -32,8 +48,15 @@ export function Layout({ children }: { children: ReactNode }) {
   }, [dark, locale])
 
   return (
-    <div className="app-shell min-h-dvh text-slate-900 dark:text-slate-100" data-background={background} style={{ '--app-wallpaper': `url("${wallpaper.image}")` } as CSSProperties}>
-      <a href="#main" className="sr-only z-50 rounded-lg bg-white p-3 focus:not-sr-only focus:fixed focus:left-3 focus:top-3">{t('common.skip')}</a>
+    <div
+      className="app-shell min-h-dvh text-slate-100"
+      data-background={background}
+      data-neon-mode={neonConfig.enabled ? neonConfig.lightMode : 'off'}
+      data-neon-palette={neonConfig.paletteId}
+      style={{ '--app-wallpaper': `url("${wallpaper.image}")` } as CSSProperties}
+    >
+      <NeonBackground config={neonConfig} />
+      <a href="#main" className="sr-only z-50 rounded-lg bg-white p-3 text-slate-900 focus:not-sr-only focus:fixed focus:left-3 focus:top-3">{t('common.skip')}</a>
       <header className="app-header">
         <div className="glass-header header-inner">
           <NavLink to="/" className="brand-link">
@@ -43,7 +66,13 @@ export function Layout({ children }: { children: ReactNode }) {
           <Navigation />
           <div className="flex shrink-0 items-center gap-1">
             <span className={`status-pill ${online ? '' : 'offline'}`}><span />{online ? t('status.online') : t('status.offline')}</span>
-            <BackgroundPicker value={background} onChange={changeBackground} saved={backgroundSaved} />
+            <BackgroundPicker
+              value={background}
+              onChange={changeBackground}
+              neonConfig={neonConfig}
+              onNeonChange={changeNeonConfig}
+              saved={backgroundSaved}
+            />
             <button type="button" className="icon-button" onClick={() => setLocale(locale === 'en' ? 'ja' : 'en')} aria-label={t('common.language')}><Languages size={18} /><span className="text-[9px] font-semibold uppercase">{locale}</span></button>
             <button type="button" className="icon-button" onClick={() => setDark((value) => !value)} aria-label={t('common.theme')} aria-pressed={dark}>{dark ? <Sun size={18} /> : <Moon size={18} />}</button>
           </div>

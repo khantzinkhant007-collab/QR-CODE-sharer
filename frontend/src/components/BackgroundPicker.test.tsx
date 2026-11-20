@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, NavLink, Route, Routes } from 'react-router-dom'
 import { I18nProvider } from '../i18n'
-import { BACKGROUND_STORAGE_KEY } from '../lib/backgrounds'
+import { BACKGROUND_STORAGE_KEY, readNeonConfig } from '../lib/backgrounds'
 import { Layout } from './Layout'
 
 vi.mock('./PwaUpdatePrompt', () => ({ PwaUpdatePrompt: () => null }))
@@ -97,5 +97,68 @@ describe('app background chooser', () => {
     expect(container.querySelector('.app-shell')).toHaveAttribute('data-background', 'obsidian')
     expect(container.querySelector('.app-shell')).toHaveStyle({ '--app-wallpaper': 'url("/backgrounds/obsidian.webp")' })
     expect(screen.getByRole('button', { name: '完了' })).toBeVisible()
+  })
+
+  it('defaults to Neon Rings with Cyberpunk Neon and lets users switch light modes, palettes, play/pause, and sliders', async () => {
+    const first = openApp()
+    const shell = first.container.querySelector('.app-shell')
+    expect(shell).toHaveAttribute('data-neon-mode', 'rings')
+    expect(shell).toHaveAttribute('data-neon-palette', 'cyberpunk')
+    expect(screen.getByTestId('neon-background')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Change background' }))
+    const dialog = screen.getByRole('dialog', { name: 'Choose your backdrop' })
+
+    const lightGroup = within(dialog).getByRole('group', { name: 'Light style' })
+    expect(within(lightGroup).getAllByRole('button')).toHaveLength(7)
+    expect(within(lightGroup).getByRole('button', { name: 'Neon Rings' })).toHaveAttribute('aria-pressed', 'true')
+
+    const paletteGroup = within(dialog).getByRole('group', { name: 'Color palette' })
+    expect(within(paletteGroup).getAllByRole('button')).toHaveLength(7)
+    expect(within(paletteGroup).getByRole('button', { name: 'Select Cyberpunk Neon palette' })).toHaveAttribute('aria-pressed', 'true')
+
+    await userEvent.click(within(lightGroup).getByRole('button', { name: 'Laser Lines' }))
+    expect(shell).toHaveAttribute('data-neon-mode', 'lasers')
+
+    await userEvent.click(within(lightGroup).getByRole('button', { name: 'Cyber Plasma' }))
+    expect(shell).toHaveAttribute('data-neon-mode', 'plasma')
+
+    await userEvent.click(within(lightGroup).getByRole('button', { name: 'Aurora' }))
+    expect(shell).toHaveAttribute('data-neon-mode', 'aurora')
+
+    await userEvent.click(within(paletteGroup).getByRole('button', { name: 'Select Tokyo Acid palette' }))
+    expect(shell).toHaveAttribute('data-neon-palette', 'tokyo')
+
+    await userEvent.click(within(paletteGroup).getByRole('button', { name: 'Select Electric Glow palette' }))
+    expect(shell).toHaveAttribute('data-neon-palette', 'electric')
+
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Pause movement' }))
+    expect(within(dialog).getByRole('button', { name: 'Resume movement' })).toBeInTheDocument()
+
+    fireEvent.change(within(dialog).getByRole('slider', { name: 'Drift Speed' }), { target: { value: '1.35' } })
+    fireEvent.change(within(dialog).getByRole('slider', { name: 'Glow Intensity' }), { target: { value: '0.6' } })
+    fireEvent.change(within(dialog).getByRole('slider', { name: 'Light Softness (Blur)' }), { target: { value: '125' } })
+
+    expect(readNeonConfig()).toEqual({
+      enabled: true,
+      lightMode: 'aurora',
+      paletteId: 'electric',
+      isPlaying: false,
+      speed: 1.35,
+      intensity: 0.6,
+      blurLevel: 125,
+    })
+
+    first.unmount()
+    const second = openApp()
+    const remountedShell = second.container.querySelector('.app-shell')
+    expect(remountedShell).toHaveAttribute('data-neon-mode', 'aurora')
+    expect(remountedShell).toHaveAttribute('data-neon-palette', 'electric')
+
+    // Choosing a classic photo disables neon mode, and re-clicking Original sunset works too.
+    await userEvent.click(screen.getByRole('button', { name: 'Change background' }))
+    await userEvent.click(screen.getByRole('radio', { name: 'Alpine mist' }))
+    expect(remountedShell).toHaveAttribute('data-neon-mode', 'off')
+    expect(screen.queryByTestId('neon-background')).not.toBeInTheDocument()
   })
 })
