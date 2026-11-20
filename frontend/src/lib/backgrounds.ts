@@ -5,6 +5,10 @@ export const backgrounds = [
   { id: 'alpine', image: '/backgrounds/alpine.webp', thumbnail: '/backgrounds/alpine-thumb.webp' },
   { id: 'coast', image: '/backgrounds/coast.webp', thumbnail: '/backgrounds/coast-thumb.webp' },
   { id: 'pearl', image: '/backgrounds/pearl.webp', thumbnail: '/backgrounds/pearl-thumb.webp' },
+  { id: 'obsidian', image: '/backgrounds/obsidian.webp', thumbnail: '/backgrounds/obsidian-thumb.webp' },
+  { id: 'emerald', image: '/backgrounds/emerald.webp', thumbnail: '/backgrounds/emerald-thumb.webp' },
+  { id: 'champagne', image: '/backgrounds/champagne.webp', thumbnail: '/backgrounds/champagne-thumb.webp' },
+  { id: 'fluted', image: '/backgrounds/fluted.webp', thumbnail: '/backgrounds/fluted-thumb.webp' },
 ] as const
 
 export type BackgroundId = typeof backgrounds[number]['id']

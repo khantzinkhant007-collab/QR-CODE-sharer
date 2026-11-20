@@ -21,13 +21,16 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); document.documentElement.classList.remove('dark') })
 
 describe('app background chooser', () => {
-  it('keeps the original photo, opens four named options, and focuses Close', async () => {
+  it('keeps the original photo, opens eight named options, and focuses Close', async () => {
     const { container } = openApp()
     expect(container.querySelector('.app-shell')).toHaveAttribute('data-background', 'dusk')
     await userEvent.click(screen.getByRole('button', { name: 'Change background' }))
     const dialog = screen.getByRole('dialog', { name: 'Choose your backdrop' })
-    expect(within(dialog).getAllByRole('radio')).toHaveLength(4)
+    expect(within(dialog).getAllByRole('radio')).toHaveLength(8)
     expect(within(dialog).getByRole('radio', { name: 'Original sunset' })).toBeChecked()
+    for (const label of ['Obsidian silk', 'Emerald crystal', 'Champagne wave', 'Pearl mint silk']) {
+      expect(within(dialog).getByRole('radio', { name: label })).toBeInTheDocument()
+    }
     expect(within(dialog).getByRole('button', { name: 'Close' })).toHaveFocus()
     expect(dialog).toHaveAccessibleDescription(/Select a scene to preview/)
   })
@@ -83,12 +86,16 @@ describe('app background chooser', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Browser storage is unavailable.')
   })
 
-  it('renders Japanese labels', async () => {
+  it('renders Japanese labels and selects a luxury option', async () => {
     vi.spyOn(window.navigator, 'language', 'get').mockReturnValue('ja-JP')
-    openApp()
+    const { container } = openApp()
     await userEvent.click(screen.getByRole('button', { name: '背景を変更' }))
     expect(screen.getByRole('dialog', { name: '背景を選ぶ' })).toBeVisible()
     expect(screen.getByRole('radio', { name: '元の夕景' })).toBeChecked()
+    await userEvent.click(screen.getByRole('radio', { name: 'オブシディアン・シルク' }))
+    expect(screen.getByRole('radio', { name: 'オブシディアン・シルク' })).toBeChecked()
+    expect(container.querySelector('.app-shell')).toHaveAttribute('data-background', 'obsidian')
+    expect(container.querySelector('.app-shell')).toHaveStyle({ '--app-wallpaper': 'url("/backgrounds/obsidian.webp")' })
     expect(screen.getByRole('button', { name: '完了' })).toBeVisible()
   })
 })

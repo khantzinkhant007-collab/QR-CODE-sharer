@@ -19,7 +19,7 @@ describe('background preferences', () => {
     expect(readBackground()).toBe('dusk')
     expect(backgrounds[0].image).toBe('/hero-dusk.webp')
   })
-  it.each(['alpine', 'coast', 'pearl'] as const)('persists and restores %s', (id) => {
+  it.each(['alpine', 'coast', 'pearl', 'obsidian', 'emerald', 'champagne', 'fluted'] as const)('persists and restores %s', (id) => {
     expect(saveBackground(id)).toBe(true)
     expect(localStorage.getItem(BACKGROUND_STORAGE_KEY)).toBe(id)
     expect(readBackground()).toBe(id)
