@@ -153,6 +153,10 @@ h1, h2, h3, strong { text-wrap: pretty; }
   backdrop-filter: blur(24px) saturate(180%);
   box-shadow: var(--glass-shadow), var(--glass-highlight);
 }
+:where(.app-shell[data-background="neon"]) :is(.glass-panel, .glass-hero, .glass-header, .liquid-dock, .empty-state) {
+  -webkit-backdrop-filter: blur(16px) saturate(145%);
+  backdrop-filter: blur(16px) saturate(145%);
+}
 .glass-panel, .glass-hero { min-width: 0; border-radius: 2rem; }
 .glass-soft {
   border: 1px solid rgba(255, 255, 255, .15);
