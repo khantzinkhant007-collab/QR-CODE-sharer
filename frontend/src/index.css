@@ -100,9 +100,47 @@ h1, h2, h3, strong { text-wrap: pretty; }
     var(--app-wallpaper, url('/hero-dusk.webp')) center / cover no-repeat;
   background-color: #050811;
 }
+.app-shell[data-background="neon"] {
+  color: #f0f4fc;
+  --ink: #f0f4fc;
+  --muted: #a6b4cc;
+  --accent: #7dd3fc;
+  --glass-fill: rgba(10, 14, 24, 0.56);
+  --glass-edge: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 16px 40px rgba(0, 0, 0, 0.62);
+  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.36), inset 0 -1px 0 0 rgba(255, 255, 255, 0.06);
+}
+.app-shell[data-background="neon"]::before,
 .app-shell[data-neon-mode]:not([data-neon-mode="off"])::before {
-  opacity: 0;
+  display: none;
   background: none;
+}
+.app-shell[data-background="neon"] .glass-soft {
+  border-color: rgba(255, 255, 255, .15);
+  background: rgba(255, 255, 255, .07);
+}
+.app-shell[data-background="neon"] .glass-inset,
+.app-shell[data-background="neon"] .metric {
+  border-color: rgba(255, 255, 255, .12);
+  background: rgba(8, 12, 22, .56);
+}
+.app-shell[data-background="neon"] .secondary-button {
+  color: var(--ink);
+  border-color: rgba(255, 255, 255, .22);
+  background: rgba(255, 255, 255, .1);
+}
+.app-shell[data-background="neon"] .nav-item[aria-current="page"] {
+  color: #ffffff;
+}
+.app-shell[data-background="neon"] .expiration-choice {
+  border-color: var(--glass-edge);
+  background: rgba(255, 255, 255, .07);
+  color: var(--ink);
+}
+.app-shell[data-background="neon"] .expiration-choice.is-selected {
+  border-color: rgba(125, 211, 252, .65);
+  background: rgba(56, 189, 248, .22);
+  color: #f0f9ff;
 }
 
 /* Liquid-glass refraction surfaces matching GLASS_STYLE over neon and ambient glow layers. */
@@ -255,6 +293,34 @@ h1, h2, h3, strong { text-wrap: pretty; }
 .background-choice { position: relative; cursor: pointer; min-width: 0; }
 .background-card { display: block; overflow: hidden; border: 2px solid var(--glass-edge); border-radius: 18px; background: rgba(10, 14, 24, .64); transition: border-color .2s ease, box-shadow .2s ease; }
 .background-thumbnail { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+.neon-preview-thumb {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 92px;
+  padding: 12px;
+  overflow: hidden;
+}
+.neon-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.54);
+  font-size: 11px;
+  font-weight: 550;
+  color: #f0f9ff;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.neon-controls {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(8, 12, 22, 0.52);
+}
 .background-card-caption { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; padding: 10px 12px; font-size: 13px; font-weight: 550; color: var(--ink); }
 .background-check { display: grid; place-items: center; flex-shrink: 0; width: 22px; height: 22px; border: 1px solid var(--glass-edge); border-radius: 50%; }
 .background-choice input:checked + .background-card { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }

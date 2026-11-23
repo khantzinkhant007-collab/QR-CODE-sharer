@@ -1,5 +1,27 @@
+import {
+  LIGHT_MODES,
+  PALETTES,
+  type LightModeId,
+  type PaletteId,
+} from './neonWallpaper'
+
+export {
+  DEFAULT_NEON_SETTINGS,
+  LIGHT_MODES,
+  NEON_SETTINGS_STORAGE_KEY,
+  PALETTES,
+  TEXTURE_MODES,
+  readNeonSettings,
+  saveNeonSettings,
+  type LightModeId,
+  type NeonOrb,
+  type NeonPalette,
+  type NeonSettings,
+  type PaletteId,
+  type TextureModeId,
+} from './neonWallpaper'
+
 export const BACKGROUND_STORAGE_KEY = 'scansend-background'
-export const NEON_STORAGE_KEY = 'scansend-neon-wallpaper'
 
 export const backgrounds = [
   { id: 'dusk', image: '/hero-dusk.webp', thumbnail: '/backgrounds/dusk-thumb.webp' },
@@ -12,172 +34,31 @@ export const backgrounds = [
   { id: 'fluted', image: '/backgrounds/fluted.webp', thumbnail: '/backgrounds/fluted-thumb.webp' },
 ] as const
 
-export type BackgroundId = typeof backgrounds[number]['id']
+export type PhotoBackgroundId = (typeof backgrounds)[number]['id']
+export type BackgroundId = 'neon' | PhotoBackgroundId
+export const DEFAULT_BACKGROUND: BackgroundId = 'neon'
 
-export const LIGHT_MODES = [
-  { id: 'rings', label: 'Neon Rings', fullName: 'Neon Pulse Rings' },
-  { id: 'lasers', label: 'Laser Lines', fullName: 'Neon Laser Lines' },
-  { id: 'plasma', label: 'Cyber Plasma', fullName: 'Cyber Neon Plasma' },
-  { id: 'orbs', label: 'Orbs', fullName: 'Ambient Orbs' },
-  { id: 'aurora', label: 'Aurora', fullName: 'Aurora Ribbons' },
-  { id: 'beams', label: 'Beams', fullName: 'Spotlight Beams' },
-  { id: 'caustics', label: 'Caustics', fullName: 'Liquid Caustics' },
-] as const
-
-export type LightModeId = typeof LIGHT_MODES[number]['id']
-
-export interface NeonOrb {
-  id: string
-  color: string
-  size: number
-  baseX: number
-  baseY: number
-  ampX: number
-  ampY: number
-  freqX: number
-  freqY: number
-  phase: number
+export function readBackground(): BackgroundId {
+  try {
+    const saved = window.localStorage.getItem(BACKGROUND_STORAGE_KEY)
+    if (saved === 'neon') return 'neon'
+    return backgrounds.find((background) => background.id === saved)?.id ?? DEFAULT_BACKGROUND
+  } catch {
+    return DEFAULT_BACKGROUND
+  }
 }
 
-export interface NeonPalette {
-  id: PaletteId
-  name: string
-  swatch: string
-  hex: readonly string[]
-  colors: readonly string[]
-  orbs: readonly NeonOrb[]
+export function saveBackground(id: BackgroundId): boolean {
+  try {
+    window.localStorage.setItem(BACKGROUND_STORAGE_KEY, id)
+    return true
+  } catch {
+    return false
+  }
 }
 
-export const PALETTES = [
-  {
-    id: 'cyberpunk',
-    name: 'Cyberpunk Neon',
-    swatch: 'linear-gradient(135deg, #ff007f, #00f5ff, #9333ea)',
-    hex: ['#ff007f', '#00f5ff', '#a855f7', '#2563eb'],
-    colors: [
-      'rgba(255, 0, 127, 0.92)',
-      'rgba(0, 245, 255, 0.90)',
-      'rgba(168, 85, 247, 0.85)',
-      'rgba(37, 99, 235, 0.80)',
-    ],
-    orbs: [
-      { id: 'cp1', color: 'rgba(255, 0, 127, 0.90)', size: 52, baseX: 25, baseY: 28, ampX: 16, ampY: 14, freqX: 0.22, freqY: 0.17, phase: 0.0 },
-      { id: 'cp2', color: 'rgba(0, 245, 255, 0.88)', size: 54, baseX: 74, baseY: 70, ampX: 18, ampY: 15, freqX: 0.18, freqY: 0.23, phase: 1.6 },
-      { id: 'cp3', color: 'rgba(168, 85, 247, 0.78)', size: 44, baseX: 52, baseY: 48, ampX: 20, ampY: 16, freqX: 0.15, freqY: 0.21, phase: 3.1 },
-      { id: 'cp4', color: 'rgba(37, 99, 235, 0.65)', size: 42, baseX: 78, baseY: 22, ampX: 14, ampY: 18, freqX: 0.19, freqY: 0.14, phase: 4.4 },
-    ],
-  },
-  {
-    id: 'tokyo',
-    name: 'Tokyo Acid',
-    swatch: 'linear-gradient(135deg, #39ff14, #00f0ff, #facc15)',
-    hex: ['#39ff14', '#00f0ff', '#facc15', '#7c3aed'],
-    colors: [
-      'rgba(57, 255, 20, 0.88)',
-      'rgba(0, 240, 255, 0.90)',
-      'rgba(250, 204, 21, 0.82)',
-      'rgba(124, 58, 237, 0.80)',
-    ],
-    orbs: [
-      { id: 'ta1', color: 'rgba(57, 255, 20, 0.85)', size: 50, baseX: 26, baseY: 26, ampX: 17, ampY: 14, freqX: 0.21, freqY: 0.16, phase: 0.4 },
-      { id: 'ta2', color: 'rgba(0, 240, 255, 0.88)', size: 56, baseX: 72, baseY: 72, ampX: 18, ampY: 15, freqX: 0.17, freqY: 0.22, phase: 1.9 },
-      { id: 'ta3', color: 'rgba(250, 204, 21, 0.72)', size: 42, baseX: 50, baseY: 50, ampX: 20, ampY: 15, freqX: 0.14, freqY: 0.20, phase: 3.3 },
-      { id: 'ta4', color: 'rgba(124, 58, 237, 0.75)', size: 44, baseX: 76, baseY: 24, ampX: 14, ampY: 16, freqX: 0.19, freqY: 0.13, phase: 4.8 },
-    ],
-  },
-  {
-    id: 'synthwave',
-    name: 'Synthwave Laser',
-    swatch: 'linear-gradient(135deg, #ff1493, #ff2a5f, #ff6b00)',
-    hex: ['#ff1493', '#ff2a5f', '#ff6b00', '#9333ea'],
-    colors: [
-      'rgba(255, 20, 147, 0.92)',
-      'rgba(255, 42, 95, 0.88)',
-      'rgba(255, 107, 0, 0.85)',
-      'rgba(147, 51, 234, 0.82)',
-    ],
-    orbs: [
-      { id: 'sw1', color: 'rgba(255, 20, 147, 0.90)', size: 54, baseX: 24, baseY: 30, ampX: 16, ampY: 14, freqX: 0.20, freqY: 0.16, phase: 0.2 },
-      { id: 'sw2', color: 'rgba(255, 107, 0, 0.84)', size: 52, baseX: 74, baseY: 68, ampX: 18, ampY: 16, freqX: 0.18, freqY: 0.22, phase: 2.1 },
-      { id: 'sw3', color: 'rgba(147, 51, 234, 0.80)', size: 46, baseX: 52, baseY: 46, ampX: 19, ampY: 16, freqX: 0.15, freqY: 0.19, phase: 3.7 },
-      { id: 'sw4', color: 'rgba(255, 42, 95, 0.78)', size: 40, baseX: 22, baseY: 74, ampX: 15, ampY: 15, freqX: 0.17, freqY: 0.14, phase: 4.9 },
-    ],
-  },
-  {
-    id: 'electric',
-    name: 'Electric Glow',
-    swatch: 'linear-gradient(135deg, #3186ff, #8b5cf6, #22d3ee)',
-    hex: ['#3186ff', '#8b5cf6', '#22d3ee', '#3b82f6'],
-    colors: [
-      'rgba(49, 134, 255, 0.85)',
-      'rgba(139, 92, 246, 0.80)',
-      'rgba(34, 211, 238, 0.62)',
-      'rgba(59, 130, 246, 0.50)',
-    ],
-    orbs: [
-      { id: 'b1', color: 'rgba(49, 134, 255, 0.85)', size: 52, baseX: 24, baseY: 26, ampX: 16, ampY: 14, freqX: 0.22, freqY: 0.17, phase: 0.0 },
-      { id: 'v1', color: 'rgba(139, 92, 246, 0.80)', size: 56, baseX: 74, baseY: 72, ampX: 18, ampY: 15, freqX: 0.18, freqY: 0.23, phase: 1.6 },
-      { id: 'c1', color: 'rgba(34, 211, 238, 0.58)', size: 42, baseX: 52, baseY: 48, ampX: 20, ampY: 16, freqX: 0.15, freqY: 0.21, phase: 3.1 },
-      { id: 'i1', color: 'rgba(59, 130, 246, 0.45)', size: 44, baseX: 78, baseY: 22, ampX: 14, ampY: 18, freqX: 0.19, freqY: 0.14, phase: 4.4 },
-    ],
-  },
-  {
-    id: 'sunset',
-    name: 'Warm Sunset',
-    swatch: 'linear-gradient(135deg, #fb923c, #ec4899, #a855f7)',
-    hex: ['#fb923c', '#ec4899', '#a855f7', '#facc15'],
-    colors: [
-      'rgba(251, 146, 60, 0.82)',
-      'rgba(236, 72, 153, 0.80)',
-      'rgba(168, 85, 247, 0.60)',
-      'rgba(250, 204, 21, 0.42)',
-    ],
-    orbs: [
-      { id: 's1', color: 'rgba(251, 146, 60, 0.80)', size: 52, baseX: 26, baseY: 28, ampX: 16, ampY: 14, freqX: 0.21, freqY: 0.16, phase: 0.3 },
-      { id: 's2', color: 'rgba(236, 72, 153, 0.78)', size: 56, baseX: 72, baseY: 70, ampX: 18, ampY: 15, freqX: 0.17, freqY: 0.22, phase: 2.0 },
-      { id: 's3', color: 'rgba(168, 85, 247, 0.56)', size: 44, baseX: 50, baseY: 50, ampX: 20, ampY: 15, freqX: 0.14, freqY: 0.20, phase: 3.6 },
-      { id: 's4', color: 'rgba(250, 204, 21, 0.36)', size: 38, baseX: 74, baseY: 26, ampX: 14, ampY: 16, freqX: 0.19, freqY: 0.13, phase: 5.0 },
-    ],
-  },
-  {
-    id: 'aurora',
-    name: 'Emerald Aurora',
-    swatch: 'linear-gradient(135deg, #10b981, #22d3ee, #6366f1)',
-    hex: ['#10b981', '#6366f1', '#2dd4bf', '#38bdf8'],
-    colors: [
-      'rgba(16, 185, 129, 0.78)',
-      'rgba(99, 102, 241, 0.82)',
-      'rgba(45, 212, 191, 0.60)',
-      'rgba(56, 189, 248, 0.46)',
-    ],
-    orbs: [
-      { id: 'a1', color: 'rgba(16, 185, 129, 0.76)', size: 54, baseX: 25, baseY: 30, ampX: 17, ampY: 14, freqX: 0.20, freqY: 0.16, phase: 0.5 },
-      { id: 'a2', color: 'rgba(99, 102, 241, 0.80)', size: 56, baseX: 74, baseY: 70, ampX: 18, ampY: 16, freqX: 0.18, freqY: 0.22, phase: 2.2 },
-      { id: 'a3', color: 'rgba(45, 212, 191, 0.56)', size: 44, baseX: 52, baseY: 46, ampX: 19, ampY: 16, freqX: 0.15, freqY: 0.19, phase: 3.8 },
-      { id: 'a4', color: 'rgba(56, 189, 248, 0.42)', size: 40, baseX: 22, baseY: 76, ampX: 15, ampY: 15, freqX: 0.17, freqY: 0.14, phase: 4.9 },
-    ],
-  },
-  {
-    id: 'monochrome',
-    name: 'Silver Mist',
-    swatch: 'linear-gradient(135deg, #e4e4e7, #71717a, #27272a)',
-    hex: ['#f4f4f5', '#a1a1aa', '#ffffff', '#71717a'],
-    colors: [
-      'rgba(228, 228, 231, 0.48)',
-      'rgba(148, 163, 184, 0.44)',
-      'rgba(255, 255, 255, 0.34)',
-      'rgba(161, 161, 170, 0.32)',
-    ],
-    orbs: [
-      { id: 'm1', color: 'rgba(228, 228, 231, 0.44)', size: 54, baseX: 28, baseY: 30, ampX: 16, ampY: 14, freqX: 0.19, freqY: 0.15, phase: 0.2 },
-      { id: 'm2', color: 'rgba(148, 163, 184, 0.42)', size: 58, baseX: 72, baseY: 68, ampX: 18, ampY: 16, freqX: 0.16, freqY: 0.21, phase: 1.9 },
-      { id: 'm3', color: 'rgba(255, 255, 255, 0.28)', size: 42, baseX: 50, baseY: 50, ampX: 20, ampY: 16, freqX: 0.14, freqY: 0.18, phase: 3.4 },
-      { id: 'm4', color: 'rgba(161, 161, 170, 0.26)', size: 46, baseX: 76, baseY: 24, ampX: 14, ampY: 15, freqX: 0.17, freqY: 0.14, phase: 4.7 },
-    ],
-  },
-] as const
-
-export type PaletteId = typeof PALETTES[number]['id']
+// Legacy aliases retained so existing tests typecheck cleanly until qa-verifier migrates them.
+export const NEON_STORAGE_KEY = 'scansend-neon-wallpaper'
 
 export interface NeonWallpaperConfig {
   enabled: boolean
@@ -202,24 +83,6 @@ export const DEFAULT_NEON_CONFIG: NeonWallpaperConfig = {
 function clamp(value: unknown, min: number, max: number, fallback: number): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) return fallback
   return Math.min(max, Math.max(min, value))
-}
-
-export function readBackground(): BackgroundId {
-  try {
-    const saved = window.localStorage.getItem(BACKGROUND_STORAGE_KEY)
-    return backgrounds.find((background) => background.id === saved)?.id ?? 'dusk'
-  } catch {
-    return 'dusk'
-  }
-}
-
-export function saveBackground(id: BackgroundId): boolean {
-  try {
-    window.localStorage.setItem(BACKGROUND_STORAGE_KEY, id)
-    return true
-  } catch {
-    return false
-  }
 }
 
 export function readNeonConfig(): NeonWallpaperConfig {

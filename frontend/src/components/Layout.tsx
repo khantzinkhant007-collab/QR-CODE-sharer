@@ -6,35 +6,42 @@ import { useI18n } from '../i18n'
 import { PwaUpdatePrompt } from './PwaUpdatePrompt'
 import { Navigation } from './Navigation'
 import { BackgroundPicker } from './BackgroundPicker'
-import { NeonBackground } from './NeonBackground'
+import { NeonWallpaper } from './NeonWallpaper'
 import {
   backgrounds,
   readBackground,
-  readNeonConfig,
   saveBackground,
-  saveNeonConfig,
   type BackgroundId,
-  type NeonWallpaperConfig,
 } from '../lib/backgrounds'
+import {
+  readNeonSettings,
+  saveNeonSettings,
+  type NeonSettings,
+} from '../lib/neonWallpaper'
 
 export function Layout({ children }: { children: ReactNode }) {
   const { pathname } = useLocation()
   const online = useOnlineStatus()
   const { locale, setLocale, t } = useI18n()
-  const [background, setBackground] = useState(readBackground)
-  const [neonConfig, setNeonConfig] = useState(readNeonConfig)
+  const [background, setBackground] = useState<BackgroundId>(readBackground)
+  const [neonSettings, setNeonSettings] = useState<NeonSettings>(readNeonSettings)
   const [backgroundSaved, setBackgroundSaved] = useState(true)
+
   const changeBackground = (value: BackgroundId) => {
     setBackground(value)
-    const nextNeon = { ...neonConfig, enabled: false }
-    setNeonConfig(nextNeon)
-    setBackgroundSaved(saveBackground(value) && saveNeonConfig(nextNeon))
+    setBackgroundSaved(saveBackground(value))
   }
-  const changeNeonConfig = (next: NeonWallpaperConfig) => {
-    setNeonConfig(next)
-    setBackgroundSaved(saveNeonConfig(next))
+
+  const changeNeonSettings = (next: NeonSettings) => {
+    setNeonSettings(next)
+    setBackgroundSaved(saveNeonSettings(next))
   }
-  const wallpaper = backgrounds.find((option) => option.id === background) ?? backgrounds[0]
+
+  const wallpaper =
+    background === 'neon'
+      ? null
+      : (backgrounds.find((option) => option.id === background) ?? backgrounds[0])
+
   const [dark, setDark] = useState(() => {
     let savedTheme: string | null = null
     try { savedTheme = window.localStorage.getItem('scansend-theme') } catch { /* Private browsing may block storage. */ }
@@ -51,11 +58,15 @@ export function Layout({ children }: { children: ReactNode }) {
     <div
       className="app-shell min-h-dvh text-slate-100"
       data-background={background}
-      data-neon-mode={neonConfig.enabled ? neonConfig.lightMode : 'off'}
-      data-neon-palette={neonConfig.paletteId}
-      style={{ '--app-wallpaper': `url("${wallpaper.image}")` } as CSSProperties}
+      data-neon-mode={background === 'neon' ? neonSettings.lightMode : 'off'}
+      data-neon-palette={neonSettings.paletteId}
+      style={
+        wallpaper
+          ? ({ '--app-wallpaper': `url("${wallpaper.image}")` } as CSSProperties)
+          : undefined
+      }
     >
-      <NeonBackground config={neonConfig} />
+      {background === 'neon' && <NeonWallpaper settings={neonSettings} />}
       <a href="#main" className="sr-only z-50 rounded-lg bg-white p-3 text-slate-900 focus:not-sr-only focus:fixed focus:left-3 focus:top-3">{t('common.skip')}</a>
       <header className="app-header">
         <div className="glass-header header-inner">
@@ -69,8 +80,8 @@ export function Layout({ children }: { children: ReactNode }) {
             <BackgroundPicker
               value={background}
               onChange={changeBackground}
-              neonConfig={neonConfig}
-              onNeonChange={changeNeonConfig}
+              neonSettings={neonSettings}
+              onNeonSettingsChange={changeNeonSettings}
               saved={backgroundSaved}
             />
             <button type="button" className="icon-button" onClick={() => setLocale(locale === 'en' ? 'ja' : 'en')} aria-label={t('common.language')}><Languages size={18} /><span className="text-[9px] font-semibold uppercase">{locale}</span></button>
