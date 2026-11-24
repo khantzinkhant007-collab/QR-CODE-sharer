@@ -667,12 +667,12 @@ export const NeonWallpaper = memo(function NeonWallpaper({ settings }: { setting
         />
       )}
 
-      {/* Subtle Vignette to keep edges deep OLED black */}
+      {/* Cinema-grade adaptive OLED contrast scrim to keep neon hues jewel-toned without center white-out */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(circle at center, rgba(0,0,0,0) 35%, rgba(0,0,0,0.62) 100%)',
+            'radial-gradient(circle at center, rgba(4, 7, 15, 0.34) 0%, rgba(4, 7, 15, 0.50) 58%, rgba(0, 0, 0, 0.78) 100%)',
         }}
       />
     </div>

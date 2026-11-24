@@ -101,11 +101,11 @@ h1, h2, h3, strong { text-wrap: pretty; }
   background-color: #050811;
 }
 .app-shell[data-background="neon"] {
-  color: #f0f4fc;
-  --ink: #f0f4fc;
-  --muted: #b4c2d8;
+  color: #ffffff;
+  --ink: #ffffff;
+  --muted: #e2e8f0;
   --accent: #7dd3fc;
-  --glass-fill: rgba(12, 16, 28, 0.24);
+  --glass-fill: rgba(9, 13, 24, 0.42);
   --glass-edge: rgba(255, 255, 255, 0.24);
   --glass-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.65), 0 2px 12px rgba(0, 0, 0, 0.28), 0 0 0 0.5px rgba(255, 255, 255, 0.22);
   --glass-highlight: inset 0 1.5px 1px rgba(255, 255, 255, 0.58), inset 1px 0 1px rgba(255, 255, 255, 0.26), inset 0 -1.5px 2px rgba(125, 211, 252, 0.20), inset -1px 0 1.5px rgba(192, 132, 252, 0.14);
@@ -124,10 +124,44 @@ h1, h2, h3, strong { text-wrap: pretty; }
   border-color: rgba(255, 255, 255, .16);
   background: rgba(255, 255, 255, .06);
 }
+.app-shell[data-background="neon"] .privacy-badge {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)), rgba(10, 15, 28, 0.46);
+  color: #e0f2fe;
+}
 .app-shell[data-background="neon"] .secondary-button {
   color: var(--ink);
   border-color: rgba(255, 255, 255, .26);
-  background: linear-gradient(180deg, rgba(255, 255, 255, .16) 0%, rgba(255, 255, 255, .08) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06)), rgba(10, 15, 28, 0.44);
+}
+.app-shell[data-background="neon"] :is(
+  .home-heading,
+  .page-title,
+  .page-subtitle,
+  .section-kicker,
+  .home-copy p,
+  .upload-label,
+  .upload-meta,
+  .event-invitation strong,
+  .event-invitation small,
+  .nav-item,
+  .brand-name,
+  .brand-caption
+) {
+  text-shadow: 0 1px 10px rgba(2, 6, 18, 0.72), 0 1px 2px rgba(0, 0, 0, 0.65);
+}
+.app-shell[data-background="neon"] .home-heading {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: #ffffff;
+  filter: drop-shadow(0 2px 14px rgba(2, 6, 18, 0.75));
+}
+.app-shell[data-background="neon"] .text-slate-500,
+.app-shell[data-background="neon"] .text-slate-600 {
+  color: #e2e8f0;
+}
+.app-shell[data-background="neon"] .text-slate-700 {
+  color: #f1f5f9;
 }
 .app-shell[data-background="neon"] .nav-item[aria-current="page"] {
   color: #ffffff;
